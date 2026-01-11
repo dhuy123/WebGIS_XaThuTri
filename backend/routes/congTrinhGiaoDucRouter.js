@@ -1,36 +1,38 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/authMiddleware');
-const {checkRole} = require('../middleware/checkRole');
-const congTrinhTonGiaoController = require('../controllers/congTrinhTonGiaoController');
+const { checkRole } = require('../middleware/checkRole');
+const congTrinhGiaoDucController = require('../controllers/congTrinhGiaoDucController');
 
-router.get('/', auth, 
-     //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
-      congTrinhTonGiaoController.getCongTrinhTonGiaoPaginated);
-router.get('/:id', auth, 
-    //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
-    congTrinhTonGiaoController.getCongTrinhTonGiaoById);
-router.post('/', auth, 
+router.get('/', auth,
+    //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']), 
+    congTrinhGiaoDucController.getCongTrinhGiaoDucPaginated);
+router.get('/:id', auth,
+    // checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
+    congTrinhGiaoDucController.getCongTrinhGiaoDucById);
+router.post('/', auth,
     //checkRole(['ADMIN', 'EMPLOYEE']),
-     congTrinhTonGiaoController.createCongTrinhTonGiao);
-router.patch('/:id', auth, 
+    congTrinhGiaoDucController.createCongTrinhGiaoDuc);
+router.put('/:id', auth,
+    // checkRole(['ADMIN', 'EMPLOYEE']), 
+    congTrinhGiaoDucController.updateCongTrinhGiaoDuc);
+router.delete('/:id', auth,
     //checkRole(['ADMIN', 'EMPLOYEE']), 
-    congTrinhTonGiaoController.updateCongTrinhTonGiao);
-router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoController.deleteCongTrinhTonGiao);
+    congTrinhGiaoDucController.deleteCongTrinhGiaoDuc);
 
 
 /** * @swagger
  * tags:
- *  name: CongTrinhTonGiao
- *  description: Quản lý công trình tôn giáo 
+ *  name: CongTrinhGiaoDuc
+ *  description: Quản lý công trình giáo dục 
  */
 
 /**
  * @swagger
- * /api/congTrinhTonGiao:
+ * /api/congTrinhGiaoDuc:
  *   get:
- *    summary: Lấy danh sách công trình tôn giáo (phân trang)
- *    tags: [CongTrinhTonGiao]
+ *    summary: Lấy danh sách công trình giáo dục (phân trang)
+ *    tags: [CongTrinhGiaoDuc]
  *    security:
  *      - BearerAuth: []
  *    parameters:
@@ -48,16 +50,16 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *         description: Số bản ghi mỗi trang
  *    responses:
  *      200:
- *        description: Lấy danh sách công trình tôn giáo thành công
+ *        description: Lấy danh sách công trình giáo dục thành công
  */
 
 /**
  * @swagger
- * /api/congTrinhTonGiao/{id}:
+ * /api/congTrinhGiaoDuc/{id}:
  *   get:
- *     summary: Lấy thông tin công trình tôn giáo theo ID
+ *     summary: Lấy thông tin công trình giáo dục theo ID
  *     tags:
- *      - CongTrinhTonGiao
+ *      - CongTrinhGiaoDuc
  *     security:
  *       - BearerAuth: []
  *     parameters:
@@ -66,23 +68,23 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *        schema:
  *         type: integer
  *        required: true
- *        description: ID của công trình tôn giáo
+ *        description: ID của công trình giáo dục
  *     responses:
  *       200:
- *         description: Lấy công trình tôn giáo thành công
+ *         description: Lấy công trình giáo dục thành công
  */
 
 /**
  * @swagger
- * /api/congTrinhTonGiao:
+ * /api/congTrinhGiaoDuc:
  *   post:
- *     summary: Thêm mới công trình tôn giáo
+ *     summary: Thêm mới công trình giáo dục
  *     description: |
- *       Thêm mới một công trình tôn giáo vào hệ thống.
- *       - Có thể **vẽ trên bản đồ** (truyền geometry theo GeoJSON)
+ *       Thêm mới một công trình giáo dục vào hệ thống.
+ *       - Có thể **vẽ trên bản đồ** (truyền geom theo GeoJSON)
  *       - Hoặc **nhập tọa độ** (longitude, latitude)
  *       Dữ liệu hình học sử dụng hệ tọa độ EPSG:4326.
- *     tags: [CongTrinhTonGiao]
+ *     tags: [CongTrinhGiaoDuc]
  *     security:
  *       - BearerAuth: []
  *     requestBody:
@@ -93,28 +95,40 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *             type: object
  *             required:
  *               - ma_doi_tuong
- *               - ten
+ *               - loai_hien_trang
  *             properties:
  *               ma_doi_tuong:
  *                 type: string
- *                 example: CM01
+ *                 example: CE08
  *                 description: Mã định danh công trình
  *               ten:
  *                 type: string
- *                 example: Chùa Trăm Gian
- *                 description: Tên công trình tôn giáo
- *               xep_hang_di_tich:
- *                 type: integer
- *                 example: 1
- *               nam_xep_hang:
- *                 type: integer
- *                 example: 1980
- *               nhom_doi_tuong:
- *                 type: string
- *                 example: cong_trinh_ton_giao
+ *                 example: Trường Tiểu học Tiên Phương
+ *                 description: Tên công trình giáo dục
  *               loai_hien_trang:
  *                 type: string
- *                 example: HT01
+ *                 example: HT02
+ *               so_dien_thoai:
+ *                 type: string
+ *                 example: " "
+ *               email:
+ *                 type: string
+ *                 example:
+ *               url:
+ *                 type: string
+ *                 example: "http://truongtienphuong.edu.vn"
+ *               so_lop:
+ *                 type: integer
+ *                 example: 450
+ *               so_hoc_sinh:
+ *                 type: integer
+ *                 example: 1200
+ *               so_giao_vien:
+ *                 type: integer
+ *                 example: 80
+ *               nam_xay_dung:
+ *                 type: integer
+ *                 example: 1995
  *               dien_tich:
  *                 type: number
  *                 example: 1200.5
@@ -123,7 +137,7 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *                 example: Xã Tiên Phương, Huyện Chương Mỹ, Hà Nội
  *
  *               # ===== CÁCH 1: VẼ (GeoJSON) =====
- *               geometry:
+ *               geom:
  *                 type: object
  *                 description: Dữ liệu hình học khi vẽ trên bản đồ (GeoJSON)
  *                 properties:
@@ -151,10 +165,10 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
 
 /**
  * @swagger
- * /api/congTrinhTonGiao/{id}:
- *   patch:
- *     summary: Cập nhật công trình tôn giáo theo ID
- *     tags: [CongTrinhTonGiao]
+ * /api/congTrinhGiaoDuc/{id}:
+ *   put:
+ *     summary: Cập nhật công trình giáo dục theo ID
+ *     tags: [CongTrinhGiaoDuc]
  *     security:
  *       - BearerAuth: []
  *     parameters:
@@ -163,7 +177,7 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *         schema:
  *           type: integer
  *         required: true
- *         description: ID của công trình tôn giáo
+ *         description: ID của công trình giáo dục cần cập nhật
  *     requestBody:
  *       required: true
  *       content:
@@ -173,22 +187,34 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *             properties:
  *               ma_doi_tuong:
  *                 type: string
- *                 example: CM01
+ *                 example: CE08
  *               ten:
  *                 type: string
- *                 example: Chùa Trăm Gian
- *               xep_hang_di_tich:
- *                 type: integer
- *                 example: 1
- *               nam_xep_hang:
- *                 type: integer
- *                 example: 1980
- *               nhom_doi_tuong:
- *                 type: string
- *                 example: cong_trinh_ton_giao
+ *                 example: Trường Tiểu học Tiên Phương
  *               loai_hien_trang:
- *                 type: integer
+ *                 type: string
  *                 example: HT01
+ *               so_dien_thoai:
+ *                 type: string
+ *                 example: "1980"
+ *               email:
+ *                 type: string
+ *                 example: cong_trinh_giao_duc
+ *               url:
+ *                 type: string
+ *                 example: "http://truongtienphuong.edu.vn"
+ *               so_lop:
+ *                 type: integer
+ *                 example: 450
+ *               so_hoc_sinh:
+ *                 type: integer
+ *                 example: 1200
+ *               so_giao_vien:
+ *                 type: integer
+ *                 example: 80
+ *               nam_xay_dung:
+ *                 type: integer
+ *                 example: 1995
  *               dien_tich:
  *                 type: number
  *                 example: 1200.5
@@ -197,7 +223,7 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *                 example: Xã Tiên Phương, Huyện Chương Mỹ
  *
  *               # ===== CÁCH 1: VẼ (GeoJSON) =====
- *               geometry:
+ *               geom:
  *                 type: object
  *                 description: Dữ liệu hình học GeoJSON khi vẽ trên bản đồ
  *                 properties:
@@ -219,15 +245,15 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *                 example: 21.03456
  *     responses:
  *       200:
- *         description: Cập nhật công trình tôn giáo thành công
+ *         description: Cập nhật công trình giáo dục thành công
  */
 
 /**
  * @swagger
- * /api/congTrinhTonGiao/{id}:
+ * /api/congTrinhGiaoDuc/{id}:
  *   delete:
- *    summary: Xóa công trình tôn giáo theo ID
- *    tags: [CongTrinhTonGiao]
+ *    summary: Xóa công trình giáo dục theo ID
+ *    tags: [CongTrinhGiaoDuc]
  *    security:
  *     - BearerAuth: []
  *    parameters:
@@ -236,10 +262,10 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *       schema:
  *         type: integer
  *       required: true
- *       description: ID của công trình tôn giáo
+ *       description: ID của công trình giáo dục
  *    responses:
  *     200:
- *      description: Xóa công trình tôn giáo thành công
+ *      description: Xóa công trình giáo dục thành công
  */
 
 

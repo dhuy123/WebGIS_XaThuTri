@@ -1,15 +1,15 @@
 const { db } = require('../config/database');
 
-const getCongTrinhTonGiaoPaginated = async (page, limit) => {
+const getCoQuanLamViecPaginated = async (page, limit) => {
     const offset = (page - 1) * limit;
     try {
         const result = await db.query(
-            `SELECT tg.id, tg.ma_doi_tuong, tg.ten, tg.xep_hang_di_tich, tg.nam_xep_hang, tg.nhom_doi_tuong, tg.loai_hien_trang, tg.dien_tich, tg.dia_chi, tg.created_at, tg.updated_at,
+            `SELECT lv.*,
                     dt.ten_doi_tuong AS ten_doi_tuong,
                     httg.ten_hien_trang AS ten_hien_trang
-                FROM cong_trinh_ton_giao tg
-                JOIN loai_doi_tuong dt ON tg.ma_doi_tuong = dt.ma_doi_tuong AND tg.nhom_doi_tuong = dt.nhom_doi_tuong
-                JOIN loai_hien_trang httg ON tg.loai_hien_trang = httg.ma_hien_trang
+                FROM tru_so_co_quan_nha_nuoc lv
+                JOIN loai_doi_tuong dt ON lv.ma_doi_tuong = dt.ma_doi_tuong AND lv.nhom_doi_tuong = dt.nhom_doi_tuong
+                JOIN loai_hien_trang httg ON lv.loai_hien_trang = httg.ma_hien_trang
                 LIMIT $1 OFFSET $2`, [limit, offset]
         );
         return result.rows;
@@ -18,15 +18,15 @@ const getCongTrinhTonGiaoPaginated = async (page, limit) => {
     }
 };
 
-const getCongTrinhTonGiaoById = async (id) => {
+const getCoQuanLamViecById = async (id) => {
     try {
         const result = await db.query(
-            `SELECT tg.*, dt.ten_doi_tuong AS ten_doi_tuong,
+            `SELECT lv.*, dt.ten_doi_tuong AS ten_doi_tuong,
                     httg.ten_hien_trang AS ten_hien_trang
-             FROM cong_trinh_ton_giao tg
-             JOIN loai_doi_tuong dt ON tg.ma_doi_tuong = dt.ma_doi_tuong AND tg.nhom_doi_tuong = dt.nhom_doi_tuong
-             JOIN loai_hien_trang httg ON tg.loai_hien_trang = httg.ma_hien_trang
-             WHERE tg.id = $1`, [id]
+             FROM tru_so_co_quan_nha_nuoc lv
+             JOIN loai_doi_tuong dt ON lv.ma_doi_tuong = dt.ma_doi_tuong AND lv.nhom_doi_tuong = dt.nhom_doi_tuong
+             JOIN loai_hien_trang httg ON lv.loai_hien_trang = httg.ma_hien_trang
+             WHERE lv.id = $1`, [id]
         );
         return result.rows[0];
     } catch (error) {
@@ -34,18 +34,14 @@ const getCongTrinhTonGiaoById = async (id) => {
     }
 }
 
-const createCongTrinhTonGiao = async (data) => {
+const createCoQuanLamViec = async (data) => {
     try {
         const {
             ma_doi_tuong,
             ten,
-            xep_hang_di_tich,
-            nam_xep_hang,
-            nhom_doi_tuong,
             loai_hien_trang,
-            dien_tich,
-            dia_chi,
-            geometry,
+            dien_tich_m2,
+            geom,
             longitude,
             latitude,
         } = data;
@@ -53,29 +49,26 @@ const createCongTrinhTonGiao = async (data) => {
         let geomSQL = null;
         let geomParams = [];
 
-        if (geometry) {
+        if (geom) {
             geomSQL = `ST_SetSRID(ST_GeomFromGeoJSON($9), 4326)`;
-            geomParams.push(JSON.stringify(geometry));
+            geomParams.push(JSON.stringify(geom));
         }
         else if (longitude && latitude) {
             geomSQL = `ST_SetSRID(ST_MakePoint($9, $10), 4326)`;
             geomParams.push(longitude, latitude);
         }
         else {
-            return res.status(400).json({
-                message: 'Phải cung cấp geomtry hoặc longitude/latitude'
-            });
+            geomSQL = 'NULL';
         }
 
 
         const result = await db.query(
             `
-      INSERT INTO cong_trinh_ton_giao (
-        ma_doi_tuong, ten, xep_hang_di_tich, nam_xep_hang,
-        nhom_doi_tuong, loai_hien_trang, dien_tich, dia_chi, geom
+      INSERT INTO tru_so_co_quan_nha_nuoc (
+        ma_doi_tuong, ten, loai_hien_trang, dien_tich_m2, geom
       )
       VALUES (
-        $1,$2,$3,$4,$5,$6,$7,$8,
+        $1,$2,$3,$4,
         ${geomSQL}
       )
       RETURNING *
@@ -83,12 +76,8 @@ const createCongTrinhTonGiao = async (data) => {
             [
                 ma_doi_tuong,
                 ten,
-                xep_hang_di_tich,
-                nam_xep_hang,
-                nhom_doi_tuong,
                 loai_hien_trang,
-                dien_tich,
-                dia_chi,
+                dien_tich_m2,
                 ...geomParams
             ]
         );
@@ -153,10 +142,10 @@ const updateCongTrinhTonGiao = async (id, data) => {
         throw error;
     }
 };
-const deleteCongTrinhTonGiao = async (id) => {
+const deleteCoQuanLamViec = async (id) => {
     try {
         const result = await db.query(
-            `DELETE FROM cong_trinh_ton_giao
+            `DELETE FROM tru_so_co_quan_nha_nuoc
                 WHERE id = $1
                 RETURNING *`, [id]
         );
@@ -168,10 +157,9 @@ const deleteCongTrinhTonGiao = async (id) => {
 };
 
 module.exports = {
-    getCongTrinhTonGiaoPaginated,
-    getCongTrinhTonGiaoById,
-    createCongTrinhTonGiao,
-    updateCongTrinhTonGiao,
-    deleteCongTrinhTonGiao
-
+    getCoQuanLamViecPaginated,
+    getCoQuanLamViecById,
+    createCoQuanLamViec,
+    // updateCoQuanLamViec,
+    deleteCoQuanLamViec
 };

@@ -13,20 +13,20 @@ const minioClient = new Minio.Client({
 
 
 
-// const connectMinio = async () => {
-//     try {
-//     await minioClient.listBuckets();
-//     console.log('MinIO OK');
-//   } catch (err) {
-//     console.error('MinIO lỗi:', err.message);
-//   }
-// };
+const connectMinio = async () => {
+    try {
+    await minioClient.listBuckets();
+    console.log('MinIO OK');
+  } catch (err) {
+    console.error('MinIO lỗi:', err.message);
+  }
+};
 
-// console.log('MinIO config:', {
-//   endPoint: process.env.END_POINT,
-//   port: process.env.PORT
-// });
+console.log('MinIO config:', {
+  endPoint: process.env.END_POINT,
+  port: process.env.PORT_POINT
+});
 
-// connectMinio();
+connectMinio();
 
 module.exports = minioClient;

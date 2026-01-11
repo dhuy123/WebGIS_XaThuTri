@@ -6,12 +6,12 @@ const auth = require('../middleware/authMiddleware');
 const { checkRole } = require('../middleware/checkRole');
 
 router.post('/upload', auth,
-    checkRole(['ADMIN']),
+    //checkRole(['ADMIN']),
     upload.single('file'),
     fileController.uploadFileController);
 
 router.get('/download/:id', auth,
-    checkRole(['ADMIN', 'EMPLOYEE']),
+   // checkRole(['ADMIN', 'EMPLOYEE']),
     fileController.downloadFileController);
 
 router.get('/', auth,
@@ -26,7 +26,7 @@ router.put('/:id', auth,
      checkRole(['ADMIN']),
     fileController.updateFileController);
 router.delete('/:id', auth,
-     checkRole(['ADMIN']),
+    // checkRole(['ADMIN']),
     fileController.deleteFileController);
 
 /**

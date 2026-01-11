@@ -1,36 +1,38 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/authMiddleware');
-const {checkRole} = require('../middleware/checkRole');
-const congTrinhTonGiaoController = require('../controllers/congTrinhTonGiaoController');
+const { checkRole } = require('../middleware/checkRole');
+const nhaVanHoaController = require('../controllers/nhaVanHoaController');
 
-router.get('/', auth, 
-     //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
-      congTrinhTonGiaoController.getCongTrinhTonGiaoPaginated);
-router.get('/:id', auth, 
-    //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
-    congTrinhTonGiaoController.getCongTrinhTonGiaoById);
-router.post('/', auth, 
+router.get('/', auth,
+    //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']), 
+    nhaVanHoaController.getNhaVanHoaPaginated);
+router.get('/:id', auth,
+    // checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
+    nhaVanHoaController.getNhaVanHoaById);
+router.post('/', auth,
     //checkRole(['ADMIN', 'EMPLOYEE']),
-     congTrinhTonGiaoController.createCongTrinhTonGiao);
-router.patch('/:id', auth, 
+    nhaVanHoaController.createNhaVanHoa);
+router.put('/:id', auth,
+    // checkRole(['ADMIN', 'EMPLOYEE']), 
+    nhaVanHoaController.updateNhaVanHoa);
+router.delete('/:id', auth,
     //checkRole(['ADMIN', 'EMPLOYEE']), 
-    congTrinhTonGiaoController.updateCongTrinhTonGiao);
-router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoController.deleteCongTrinhTonGiao);
+    nhaVanHoaController.deleteNhaVanHoa);
 
 
 /** * @swagger
  * tags:
- *  name: CongTrinhTonGiao
- *  description: Quản lý công trình tôn giáo 
+ *  name: NhaVanHoa
+ *  description: Quản lý nhà văn hóa 
  */
 
 /**
  * @swagger
- * /api/congTrinhTonGiao:
+ * /api/nhaVanHoa:
  *   get:
- *    summary: Lấy danh sách công trình tôn giáo (phân trang)
- *    tags: [CongTrinhTonGiao]
+ *    summary: Lấy danh sách nhà văn hóa (phân trang)
+ *    tags: [NhaVanHoa]
  *    security:
  *      - BearerAuth: []
  *    parameters:
@@ -48,16 +50,16 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *         description: Số bản ghi mỗi trang
  *    responses:
  *      200:
- *        description: Lấy danh sách công trình tôn giáo thành công
+ *        description: Lấy danh sách nhà văn hóa thành công
  */
 
 /**
  * @swagger
- * /api/congTrinhTonGiao/{id}:
+ * /api/nhaVanHoa/{id}:
  *   get:
- *     summary: Lấy thông tin công trình tôn giáo theo ID
+ *     summary: Lấy thông tin nhà văn hóa theo ID
  *     tags:
- *      - CongTrinhTonGiao
+ *      - NhaVanHoa
  *     security:
  *       - BearerAuth: []
  *     parameters:
@@ -66,23 +68,23 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *        schema:
  *         type: integer
  *        required: true
- *        description: ID của công trình tôn giáo
+ *        description: ID của nhà văn hóa
  *     responses:
  *       200:
- *         description: Lấy công trình tôn giáo thành công
+ *         description: Lấy nhà văn hóa thành công
  */
 
 /**
  * @swagger
- * /api/congTrinhTonGiao:
+ * /api/nhaVanHoa:
  *   post:
- *     summary: Thêm mới công trình tôn giáo
+ *     summary: Thêm mới nhà văn hóa
  *     description: |
- *       Thêm mới một công trình tôn giáo vào hệ thống.
- *       - Có thể **vẽ trên bản đồ** (truyền geometry theo GeoJSON)
+ *       Thêm mới một nhà văn hóa vào hệ thống.
+ *       - Có thể **vẽ trên bản đồ** (truyền geom theo GeoJSON)
  *       - Hoặc **nhập tọa độ** (longitude, latitude)
  *       Dữ liệu hình học sử dụng hệ tọa độ EPSG:4326.
- *     tags: [CongTrinhTonGiao]
+ *     tags: [NhaVanHoa]
  *     security:
  *       - BearerAuth: []
  *     requestBody:
@@ -93,37 +95,30 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *             type: object
  *             required:
  *               - ma_doi_tuong
- *               - ten
+ *               - loai_hien_trang
  *             properties:
  *               ma_doi_tuong:
  *                 type: string
- *                 example: CM01
- *                 description: Mã định danh công trình
+ *                 example: DA0218
+ *                 description: Mã định danh nhà văn hóa
+ *               danh_tu_chung:
+ *                 type: string
+ *                 example: "thôn"
+ *                 description: Danh từ chung của nhà văn hóa
  *               ten:
  *                 type: string
- *                 example: Chùa Trăm Gian
- *                 description: Tên công trình tôn giáo
- *               xep_hang_di_tich:
- *                 type: integer
- *                 example: 1
- *               nam_xep_hang:
- *                 type: integer
- *                 example: 1980
- *               nhom_doi_tuong:
- *                 type: string
- *                 example: cong_trinh_ton_giao
+ *                 example: Nhà văn hóa Tiên Phương
+ *                 description: Tên nhà văn hóa
  *               loai_hien_trang:
  *                 type: string
- *                 example: HT01
- *               dien_tich:
- *                 type: number
- *                 example: 1200.5
+ *                 example: HT02
+ *                 description: Loại hiện trạng nhà văn hóa
  *               dia_chi:
  *                 type: string
- *                 example: Xã Tiên Phương, Huyện Chương Mỹ, Hà Nội
+ *                 example: 
  *
  *               # ===== CÁCH 1: VẼ (GeoJSON) =====
- *               geometry:
+ *               geom:
  *                 type: object
  *                 description: Dữ liệu hình học khi vẽ trên bản đồ (GeoJSON)
  *                 properties:
@@ -146,15 +141,15 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *
  *     responses:
  *       201:
- *         description: Thêm công trình tôn giáo thành công
+ *         description: Thêm nhà văn hóa thành công
  */
 
 /**
  * @swagger
- * /api/congTrinhTonGiao/{id}:
- *   patch:
- *     summary: Cập nhật công trình tôn giáo theo ID
- *     tags: [CongTrinhTonGiao]
+ * /api/nhaVanHoa/{id}:
+ *   put:
+ *     summary: Cập nhật nhà văn hóa theo ID
+ *     tags: [NhaVanHoa]
  *     security:
  *       - BearerAuth: []
  *     parameters:
@@ -163,7 +158,7 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *         schema:
  *           type: integer
  *         required: true
- *         description: ID của công trình tôn giáo
+ *         description: ID của nhà văn hóa cần cập nhật
  *     requestBody:
  *       required: true
  *       content:
@@ -173,31 +168,23 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *             properties:
  *               ma_doi_tuong:
  *                 type: string
- *                 example: CM01
+ *                 example: DA0218
+ *               danh_tu_chung:
+ *                 type: string
+ *                 example: "thôn"
  *               ten:
  *                 type: string
- *                 example: Chùa Trăm Gian
- *               xep_hang_di_tich:
- *                 type: integer
- *                 example: 1
- *               nam_xep_hang:
- *                 type: integer
- *                 example: 1980
- *               nhom_doi_tuong:
- *                 type: string
- *                 example: cong_trinh_ton_giao
+ *                 example: Nhà văn hóa Tiên Phương
  *               loai_hien_trang:
- *                 type: integer
+ *                 type: string
  *                 example: HT01
- *               dien_tich:
- *                 type: number
- *                 example: 1200.5
+ *                 description: Loại hiện trạng nhà văn hóa
  *               dia_chi:
  *                 type: string
  *                 example: Xã Tiên Phương, Huyện Chương Mỹ
  *
  *               # ===== CÁCH 1: VẼ (GeoJSON) =====
- *               geometry:
+ *               geom:
  *                 type: object
  *                 description: Dữ liệu hình học GeoJSON khi vẽ trên bản đồ
  *                 properties:
@@ -219,15 +206,15 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *                 example: 21.03456
  *     responses:
  *       200:
- *         description: Cập nhật công trình tôn giáo thành công
+ *         description: Cập nhật nhà văn hóa thành công
  */
 
 /**
  * @swagger
- * /api/congTrinhTonGiao/{id}:
+ * /api/nhaVanHoa/{id}:
  *   delete:
- *    summary: Xóa công trình tôn giáo theo ID
- *    tags: [CongTrinhTonGiao]
+ *    summary: Xóa nhà văn hóa theo ID
+ *    tags: [NhaVanHoa]
  *    security:
  *     - BearerAuth: []
  *    parameters:
@@ -236,10 +223,10 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *       schema:
  *         type: integer
  *       required: true
- *       description: ID của công trình tôn giáo
+ *       description: ID của công trình giáo dục
  *    responses:
  *     200:
- *      description: Xóa công trình tôn giáo thành công
+ *      description: Xóa công trình giáo dục thành công
  */
 
 

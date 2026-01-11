@@ -2,35 +2,36 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/authMiddleware');
 const {checkRole} = require('../middleware/checkRole');
-const congTrinhTonGiaoController = require('../controllers/congTrinhTonGiaoController');
+const coQuanLamViec = require('../controllers/coQuanLamViecController');
 
 router.get('/', auth, 
      //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
-      congTrinhTonGiaoController.getCongTrinhTonGiaoPaginated);
+      coQuanLamViec.getCoQuanLamViecPaginated);
 router.get('/:id', auth, 
     //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
-    congTrinhTonGiaoController.getCongTrinhTonGiaoById);
+    coQuanLamViec.getCoQuanLamViecById);
 router.post('/', auth, 
     //checkRole(['ADMIN', 'EMPLOYEE']),
-     congTrinhTonGiaoController.createCongTrinhTonGiao);
+     coQuanLamViec.createCoQuanLamViec);
 router.patch('/:id', auth, 
     //checkRole(['ADMIN', 'EMPLOYEE']), 
-    congTrinhTonGiaoController.updateCongTrinhTonGiao);
-router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoController.deleteCongTrinhTonGiao);
-
+    coQuanLamViec.updateCoQuanLamViec);
+router.delete('/:id', auth, 
+    //checkRole(['ADMIN', 'EMPLOYEE']), 
+coQuanLamViec.deleteCoQuanLamViec);
 
 /** * @swagger
  * tags:
- *  name: CongTrinhTonGiao
- *  description: Quản lý công trình tôn giáo 
+ *  name: CoQuanLamViec
+ *  description: Quản lý cơ quan làm việc 
  */
 
 /**
  * @swagger
- * /api/congTrinhTonGiao:
+ * /api/coQuanLamViec:
  *   get:
- *    summary: Lấy danh sách công trình tôn giáo (phân trang)
- *    tags: [CongTrinhTonGiao]
+ *    summary: Lấy danh sách cơ quan làm việc (phân trang)
+ *    tags: [CoQuanLamViec]
  *    security:
  *      - BearerAuth: []
  *    parameters:
@@ -48,16 +49,16 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *         description: Số bản ghi mỗi trang
  *    responses:
  *      200:
- *        description: Lấy danh sách công trình tôn giáo thành công
+ *        description: Lấy danh sách cơ quan làm việc thành công
  */
 
 /**
  * @swagger
- * /api/congTrinhTonGiao/{id}:
+ * /api/coQuanLamViec/{id}:
  *   get:
- *     summary: Lấy thông tin công trình tôn giáo theo ID
+ *     summary: Lấy thông tin cơ quan làm việc theo ID
  *     tags:
- *      - CongTrinhTonGiao
+ *      - CoQuanLamViec
  *     security:
  *       - BearerAuth: []
  *     parameters:
@@ -66,23 +67,23 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *        schema:
  *         type: integer
  *        required: true
- *        description: ID của công trình tôn giáo
+ *        description: ID của cơ quan làm việc
  *     responses:
  *       200:
- *         description: Lấy công trình tôn giáo thành công
+ *         description: Lấy cơ quan làm việc thành công
  */
 
 /**
  * @swagger
- * /api/congTrinhTonGiao:
+ * /api/coQuanLamViec:
  *   post:
- *     summary: Thêm mới công trình tôn giáo
+ *     summary: Thêm mới cơ quan làm việc
  *     description: |
- *       Thêm mới một công trình tôn giáo vào hệ thống.
+ *       Thêm mới một cơ quan làm việc vào hệ thống.
  *       - Có thể **vẽ trên bản đồ** (truyền geometry theo GeoJSON)
  *       - Hoặc **nhập tọa độ** (longitude, latitude)
  *       Dữ liệu hình học sử dụng hệ tọa độ EPSG:4326.
- *     tags: [CongTrinhTonGiao]
+ *     tags: [CoQuanLamViec]
  *     security:
  *       - BearerAuth: []
  *     requestBody:
@@ -93,37 +94,25 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *             type: object
  *             required:
  *               - ma_doi_tuong
- *               - ten
+ *               - loai_hien_trang
  *             properties:
  *               ma_doi_tuong:
  *                 type: string
- *                 example: CM01
- *                 description: Mã định danh công trình
+ *                 example: CV09
+ *                 description: Mã định danh cơ quan làm việc
  *               ten:
  *                 type: string
- *                 example: Chùa Trăm Gian
- *                 description: Tên công trình tôn giáo
- *               xep_hang_di_tich:
- *                 type: integer
- *                 example: 1
- *               nam_xep_hang:
- *                 type: integer
- *                 example: 1980
- *               nhom_doi_tuong:
- *                 type: string
- *                 example: cong_trinh_ton_giao
+ *                 example: Ủy ban nhân dân xã Tiên Phương
+ *                 description: Tên cơ quan làm việc
  *               loai_hien_trang:
  *                 type: string
- *                 example: HT01
- *               dien_tich:
+ *                 example: HT03
+ *                 description: Mã loại hiện trạng
+ *               dien_tich_m2:
  *                 type: number
- *                 example: 1200.5
- *               dia_chi:
- *                 type: string
- *                 example: Xã Tiên Phương, Huyện Chương Mỹ, Hà Nội
- *
+ *                 
  *               # ===== CÁCH 1: VẼ (GeoJSON) =====
- *               geometry:
+ *               geom:
  *                 type: object
  *                 description: Dữ liệu hình học khi vẽ trên bản đồ (GeoJSON)
  *                 properties:
@@ -224,10 +213,10 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
 
 /**
  * @swagger
- * /api/congTrinhTonGiao/{id}:
+ * /api/coQuanLamViec/{id}:
  *   delete:
- *    summary: Xóa công trình tôn giáo theo ID
- *    tags: [CongTrinhTonGiao]
+ *    summary: Xóa cơ quan làm việc theo ID
+ *    tags: [CoQuanLamViec]
  *    security:
  *     - BearerAuth: []
  *    parameters:
@@ -236,10 +225,10 @@ router.delete('/:id', auth, checkRole(['ADMIN', 'EMPLOYEE']), congTrinhTonGiaoCo
  *       schema:
  *         type: integer
  *       required: true
- *       description: ID của công trình tôn giáo
+ *       description: ID của cơ quan làm việc
  *    responses:
  *     200:
- *      description: Xóa công trình tôn giáo thành công
+ *      description: Xóa cơ quan làm việc thành công
  */
 
 

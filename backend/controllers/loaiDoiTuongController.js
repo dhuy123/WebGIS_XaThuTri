@@ -71,7 +71,7 @@ const searchLoaiDoiTuong = async (req, res) => {
         const limit = parseInt(req.query.limit) || 10;
         console.log("Searching Loai Doi Tuong with keyword:", req.query);
         const result = await loaiDoiTuongModel.searchLoaiDoiTuong({nhom_doi_tuong, ma_doi_tuong, ten_doi_tuong}, page, limit);
-        res.status(200).json({ message: 'Tìm kiếm loại đối tượng thành công', data: result });  
+        res.status(200).json({ message: 'Tìm kiếm loại đối tượng thành công', search: {nhom_doi_tuong, ma_doi_tuong, ten_doi_tuong}, data: result });  
     } catch (error) {
         throw error;
     }
