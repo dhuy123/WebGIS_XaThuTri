@@ -5,7 +5,7 @@ const options = {
   definition: {
     openapi: "3.0.0",
     info: {
-      title: "WebGIS API",
+      title: "WebGIS xã Thư Trì API",
       version: "1.0.0",
       description: "Tài liệu API cho ứng dụng Node.js",
     },
@@ -18,7 +18,7 @@ const options = {
   },
 
   // Nơi Swagger sẽ đọc mô tả API trong JS docs
-  apis: ["./app.js"]
+  apis: ["./routes/*.js"]
 
 };
 

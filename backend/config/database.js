@@ -1,7 +1,7 @@
 const {Pool} = require('pg');
 require('dotenv').config();
 
-const pool = new Pool({
+const db = new Pool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -11,7 +11,7 @@ const pool = new Pool({
 
 const connectDB = async () => {
   try {
-    await pool.connect();
+    await db.connect();
     console.log('Kết nối đến PostgreSQL thành công!');
   } catch (error) {
     console.error('Lỗi kết nối PostgreSQL:', error);
@@ -19,4 +19,4 @@ const connectDB = async () => {
 };
 
 
-module.exports = {pool, connectDB};
+module.exports = {db, connectDB};
