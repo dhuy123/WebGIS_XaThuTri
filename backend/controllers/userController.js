@@ -2,6 +2,7 @@ const userModel = require('../models/userModel');
 
 const getAllUser = async (req, res) => {
     try {
+        const { page = 1, limit = 10 } = req.query;
         const users = await userModel.getAllUser();
         return res.status(200).json({ message: 'Lấy danh sách người dùng thành công', users });
     } catch (error) {
@@ -25,7 +26,7 @@ const getUserById = async (req, res) => {
 const updateUser = async (req, res) => {
     const id = req.params.id;
     const data = req.body;
-    console.log(data);
+    // console.log(data);
     try {
         const updatedUser = await userModel.updateUser(id, data);
         return res.status(200).json({ message: 'Cập nhật thông tin người dùng thành công', user: updatedUser });

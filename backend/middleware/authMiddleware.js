@@ -8,7 +8,7 @@ const auth = async (req, res, next) => {
         // Kiểm tra token trong Header
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             req.user=null;
-            //return res.status(401).json({ message: 'Không tìm thấy token!' });
+            return res.status(401).json({ message: 'Không tìm thấy token!' });
             return next();
         }
         const token = authHeader.split(' ')[1];

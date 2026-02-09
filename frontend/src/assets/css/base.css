@@ -1,0 +1,104 @@
+/* color palette from <https://github.com/vuejs/theme> */
+:root {
+--bg-header : #48B77A;
+--cl-text : #FFFFFF;
+
+  --vt-c-white: #FFFFFF;
+  --vt-c-white-soft: #F7F7F7;
+  --vt-c-white-mute: #E1E1E1;
+
+  --vt-c-black: #121212;
+  --vt-c-black-soft: #1E1E1E;
+  --vt-c-black-mute: #2C2C2C;
+
+  --vt-c-text-light-1: #222222;
+  --vt-c-text-light-2: #555555;
+
+  --vt-c-text-dark-1: #EEEEEE;
+  --vt-c-text-dark-2: #BBBBBB;
+
+  --vt-c-divider-light-1: #DDDDDD;
+  --vt-c-divider-light-2: #CCCCCC;
+
+  --vt-c-divider-dark-1: #333333;
+  --vt-c-divider-dark-2: #444444;
+}
+
+/* semantic color variables for this project */
+:root {
+  --color-background: var(--vt-c-white);
+  --color-background-soft: var(--vt-c-white-soft);
+  --color-background-mute: var(--vt-c-white-mute);
+
+  --color-border: var(--vt-c-divider-light-2);
+  --color-border-hover: var(--vt-c-divider-light-1);
+
+  --color-heading: var(--vt-c-text-light-1);
+  --color-text: var(--vt-c-text-light-1);
+
+  --section-gap: 160px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: var(--vt-c-black);
+    --color-background-soft: var(--vt-c-black-soft);
+    --color-background-mute: var(--vt-c-black-mute);
+
+    --color-border: var(--vt-c-divider-dark-2);
+    --color-border-hover: var(--vt-c-divider-dark-1);
+
+    --color-heading: var(--vt-c-text-dark-1);
+    --color-text: var(--vt-c-text-dark-2);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--color-text);
+  background: var(--color-background);
+  transition:
+    color 0.5s,
+    background-color 0.5s;
+  line-height: 1.6;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    'Fira Sans',
+    'Droid Sans',
+    'Helvetica Neue',
+    sans-serif;
+  font-size: 15px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.container{
+    width: 100%;
+    max-width: 1680px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 200px;
+}
+
+@media (max-width: 1200px) {
+  .container{
+      padding: 0 20px;
+  }
+}
+

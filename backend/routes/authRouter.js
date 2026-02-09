@@ -30,13 +30,13 @@ router.post('/register', authController.resgisterUser);
 //  *       type: object
 //  *       required:
 //  *         - username
-//  *         - password
+//  *         - pass_word
 //  *         - email
 //  *       properties:
 //  *         username:
 //  *           type: string
 //  *           example: admin
-//  *         password:
+//  *         pass_word:
 //  *           type: string
 //  *           example: 123456
 //  *         email:
@@ -58,19 +58,30 @@ router.post('/register', authController.resgisterUser);
  *             type: object
  *             required:
  *               - email
- *               - pass_word
  *               - user_name
+ *               - phone
+ *               - role
+ *               - ngay_sinh
+ *               - gioi_tinh
+ *               - gmail
  *             properties:
  *               email:
  *                 type: string
- *                 example: user@example.com
- *               pass_word:
- *                 type: string
- *                 example: 123456
+ *                 example: user@gmail.com
  *               user_name:
  *                 type: string
  *                 example: username
- *               
+ *               phone:
+ *                 type: string
+ *               role:
+ *                 type: string
+ *                 example: EMPLOYEE
+ *               ngay_sinh:
+ *                 type: string
+ *               gioi_tinh:
+ *                 type: string
+ *               gmail:
+ *                 type: string
  *     responses:
  *       201:
  *         description: Đăng ký thành công

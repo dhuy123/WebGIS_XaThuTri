@@ -1,13 +1,21 @@
-const {db}= require('../config/database');
+const { db } = require('../config/database');
 
 const getLoaiHienTrangPaginated = async (page, limit) => {
     const offset = (page - 1) * limit;
     try {
+        const totalResult = await db.query(`SELECT COUNT(*) FROM loai_hien_trang`);
+        const total = parseInt(totalResult.rows[0].count);
         const result = await db.query(
             `SELECT * FROM loai_hien_trang
+            order BY ma_hien_trang
              LIMIT $1 OFFSET $2`, [limit, offset]
         );
-        return result.rows;
+        return {
+            data: result.rows,
+            total,
+            page,
+            limit
+        };
     } catch (error) {
         throw error;
     }
@@ -27,7 +35,7 @@ const getLoaiHienTrangById = async (id) => {
 const createLoaiHienTrang = async (data) => {
     try {
         const { ma_hien_trang, ten_hien_trang, mo_ta } = data;
-      
+
         const result = await db.query(
             `INSERT INTO loai_hien_trang (ma_hien_trang, ten_hien_trang, mo_ta)
              VALUES ($1, $2, $3) RETURNING *`,
@@ -72,28 +80,32 @@ const deleteLoaiHienTrang = async (id) => {
     }
 };
 
-// const searchLoaiHienTrang = async (data, page, limit) => {
-//     try {
-//         const offset = (page - 1) * limit;
-//         const {ma_hien_trang, ten_hien_trang, mo_ta} = data;
+const searchLoaiHienTrang = async (keyword, page, limit) => {
+    try {
+        const offset = (page - 1) * limit;
+        const totalResult = await db.query(
+            `SELECT COUNT(*) FROM loai_hien_trang 
+             WHERE ma_hien_trang ILIKE $1 OR ten_hien_trang ILIKE $1`,
+            [`%${keyword || ''}%`]
+        );
+        const total = parseInt(totalResult.rows[0].count);
 
-//         let query = `SELECT * FROM loai_hien_trang WHERE 1=1`;
-//         let queryParams = [];
-//         let paramIndex = 1;
-//         if (ma_hien_trang) {
-//             query += ` AND ma_hien_trang ILIKE $${paramIndex}`;
-//             queryParams.push(`%${ma_hien_trang}%`);
-//             paramIndex++;
-//         }
-//         if (ten_hien_trang) {
-//             query += ` AND ten_hien_trang ILIKE $${paramIndex}`;
-//             queryParams.push(`%${ten_hien_trang}%`);
-//             paramIndex++;
-//         }
-//     } catch (error) {
-//         throw error;
-//     }
-// };
+        let query = `SELECT * FROM loai_hien_trang WHERE ma_hien_trang ILIKE $1 OR ten_hien_trang ILIKE $1
+                     ORDER BY ma_hien_trang
+                     LIMIT $2 OFFSET $3`;
+        let values = [`%${keyword || ''}%`, limit, offset];
+        const result = await db.query(query, values);
+        return {
+            data: result.rows,
+            page,
+            limit,
+            total
+        }
+        
+    } catch (error) {
+        throw error;
+    }
+};
 
 
 module.exports = {
@@ -102,5 +114,5 @@ module.exports = {
     createLoaiHienTrang,
     updateLoaiHienTrang,
     deleteLoaiHienTrang,
-    // searchLoaiHienTrang
+    searchLoaiHienTrang
 }

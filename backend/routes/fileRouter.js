@@ -1,24 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const fileController = require('../controllers/fileController');
-const upload = require('../middleware/uploadMiddleware');
 const auth = require('../middleware/authMiddleware');
 const { checkRole } = require('../middleware/checkRole');
 
 router.post('/upload', auth,
     //checkRole(['ADMIN']),
-    upload.single('file'),
     fileController.uploadFileController);
 
 router.get('/download/:id', auth,
    // checkRole(['ADMIN', 'EMPLOYEE']),
     fileController.downloadFileController);
 
-router.get('/', auth,
+router.get('/', 
+    // auth,
     //checkRole(['ADMIN']),
     fileController.getAllFiles);
  
-router.get('/:id', auth,
+router.get('/:id', 
+    // auth,
     // checkRole(['ADMIN']),
     fileController.getFileById);
 
@@ -98,6 +98,19 @@ router.delete('/:id', auth,
  *    tags: [Files]
  *    security:
  *      - BearerAuth: []    
+ *    parameters:
+ *      - in: query
+ *        name: page
+ *        schema:
+ *          type: integer
+ *          example: 1
+ *        description: Số trang
+ *      - in: query
+ *        name: limit
+ *        schema:
+ *          type: integer
+ *          example: 10
+ *        description: Số lượng tệp tin trên mỗi trang
  *    responses:
  *     200:
  *      description: Lấy danh sách tệp tin thành công

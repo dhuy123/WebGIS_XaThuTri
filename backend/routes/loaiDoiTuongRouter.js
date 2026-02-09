@@ -7,7 +7,12 @@ const { checkRole } = require('../middleware/checkRole');
 router.get('/', auth,
     //checkRole(['ADMIN', 'USER']),
     loaiDoiTuongController.getLoaiDoiTuongPaginated);
-router.get('/search', auth,
+router.get('/nhomDoiTuong',
+    // auth,
+    //checkRole(['ADMIN', 'USER']),
+    loaiDoiTuongController.getAllNhomDoiTuong);
+router.get('/search', 
+    // auth,
     //checkRole(['ADMIN', 'USER']),
     loaiDoiTuongController.searchLoaiDoiTuong);
 router.get('/:id', auth,
@@ -18,12 +23,11 @@ router.post('/', auth,
     //checkRole(['ADMIN']),
     loaiDoiTuongController.createLoaiDoiTuong);
 router.put('/:id', auth,
-   //checkRole(['ADMIN']),
+    //checkRole(['ADMIN']),
     loaiDoiTuongController.updateLoaiDoiTuong);
 router.delete('/:id', auth,
-   //checkRole(['ADMIN']),
+    //checkRole(['ADMIN']),
     loaiDoiTuongController.deleteLoaiDoiTuong);
-
 
 module.exports = router;
 
@@ -59,7 +63,20 @@ module.exports = router;
  *      200:
  *        description: Lấy danh sách loại đối tượng thành công
  */
- 
+
+/**
+ * @swagger
+ * /api/loaiDoiTuong/nhomDoiTuong:
+ *  get:
+ *   summary: Lấy danh sách nhóm đối tượng
+ *   tags: [LoaiDoiTuong]
+ *   security:
+ *     - BearerAuth: []
+ *   responses:
+ *     200:
+ *       description: Lấy danh sách nhóm đối tượng thành công
+ */
+
 /**
  * @swagger
  * /api/loaiDoiTuong/{id}:
@@ -212,5 +229,5 @@ module.exports = router;
  *     200:
  *       description: Tìm kiếm loại đối tượng thành công
  */
-  
+
 

@@ -7,6 +7,10 @@ const { checkRole } = require('../middleware/checkRole');
 router.get('/', auth,
     //checkRole(['ADMIN', 'USER']),
     loaiHienTrangController.getLoaiHienTrangPaginated);
+router.get('/search', 
+    // auth,
+    //checkRole(['ADMIN', 'USER']),
+    loaiHienTrangController.searchLoaiHienTrang);
 router.get('/:id', auth,
     //checkRole(['ADMIN', 'USER']),
     loaiHienTrangController.getLoaiHienTrangById);
@@ -54,6 +58,37 @@ module.exports = router;
  *    responses:
  *      200:
  *       description: Lấy danh sách loại hiện trạng thành công
+ */
+
+/**
+ * @swagger
+ * /api/loaiHienTrang/search:
+ *  get:
+ *    summary: Tìm kiếm loại hiện trạng theo từ khóa với phân trang
+ *    tags: [LoaiHienTrang]
+ *    security:
+ *      - BearerAuth: []
+ *    parameters:
+ *      - in: query
+ *        name: keyword
+ *        schema:
+ *          type: string
+ *        description: nhập mã hiện trạng hoặc tên hiện trạng để tìm kiếm
+ *      - in: query
+ *        name: page
+ *        schema:
+ *          type: integer
+ *          default: 1
+ *        description: Số trang (mặc định là 1)
+ *      - in: query
+ *        name: limit
+ *        schema:
+ *          type: integer
+ *          default: 10
+ *        description: Số mục trên mỗi trang (mặc định là 10)
+ *    responses:
+ *      200:
+ *        description: Tìm kiếm loại hiện trạng thành công
  */
 
 /**

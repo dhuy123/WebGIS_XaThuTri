@@ -10,8 +10,9 @@ router.get('/', auth,
 router.get('/:id', auth, 
     //checkRole(['ADMIN']),
      userController.getUserById);
-router.put('/:id', auth, 
-    //checkRole(['ADMIN']),
+router.put('/:id', 
+    auth, 
+    checkRole(['ADMIN']),
      userController.updateUser);
 router.delete('/:id', auth, 
     //checkRole(['ADMIN']),

@@ -11,7 +11,7 @@ router.get('/:id', auth,
     //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
     congTrinhTonGiaoController.getCongTrinhTonGiaoById);
 router.post('/', auth, 
-    //checkRole(['ADMIN', 'EMPLOYEE']),
+    checkRole(['ADMIN', 'EMPLOYEE']),
      congTrinhTonGiaoController.createCongTrinhTonGiao);
 router.patch('/:id', auth, 
     //checkRole(['ADMIN', 'EMPLOYEE']), 

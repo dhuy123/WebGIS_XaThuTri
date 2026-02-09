@@ -4,21 +4,25 @@ const auth = require('../middleware/authMiddleware');
 const { checkRole } = require('../middleware/checkRole');
 const congTrinhGiaoDucController = require('../controllers/congTrinhGiaoDucController');
 
-router.get('/', auth,
-    //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']), 
-    congTrinhGiaoDucController.getCongTrinhGiaoDucPaginated);
-router.get('/:id', auth,
-    // checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
-    congTrinhGiaoDucController.getCongTrinhGiaoDucById);
-router.post('/', auth,
-    //checkRole(['ADMIN', 'EMPLOYEE']),
-    congTrinhGiaoDucController.createCongTrinhGiaoDuc);
-router.put('/:id', auth,
-    // checkRole(['ADMIN', 'EMPLOYEE']), 
-    congTrinhGiaoDucController.updateCongTrinhGiaoDuc);
-router.delete('/:id', auth,
-    //checkRole(['ADMIN', 'EMPLOYEE']), 
-    congTrinhGiaoDucController.deleteCongTrinhGiaoDuc);
+// router.get('/', auth,
+//     //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']), 
+//     congTrinhGiaoDucController.getCongTrinhGiaoDucPaginated);
+// router.get('/:id', auth,
+//     // checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
+//     congTrinhGiaoDucController.getCongTrinhGiaoDucById);
+// router.post('/', auth,
+//     //checkRole(['ADMIN', 'EMPLOYEE']),
+//     congTrinhGiaoDucController.createCongTrinhGiaoDuc);
+// router.put('/:id', auth,
+//     // checkRole(['ADMIN', 'EMPLOYEE']), 
+//     congTrinhGiaoDucController.updateCongTrinhGiaoDuc);
+// router.delete('/:id', auth,
+//     //checkRole(['ADMIN', 'EMPLOYEE']), 
+//     congTrinhGiaoDucController.deleteCongTrinhGiaoDuc);
+router.get('/count',
+    // auth,
+    //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
+    congTrinhGiaoDucController.countCongTrinhGiaoDuc);
 
 
 /** * @swagger
@@ -266,6 +270,19 @@ router.delete('/:id', auth,
  *    responses:
  *     200:
  *      description: Xóa công trình giáo dục thành công
+ */
+
+/**
+ * @swagger
+ * /api/congTrinhGiaoDuc/count:
+ *   get:
+ *    summary: Đếm tổng số công trình giáo dục
+ *    tags: [CongTrinhGiaoDuc]
+ *    security:
+ *     - BearerAuth: []
+ *    responses:
+ *     200:
+ *      description: Đếm tổng số công trình giáo dục thành công
  */
 
 

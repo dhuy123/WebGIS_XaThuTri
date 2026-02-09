@@ -8,7 +8,7 @@ const uploadFile = async (file, file_name) => {
         const bucketName = process.env.BUCKET_NAME;
         // tạo tên file duy nhất
         const ext = path.extname(file.originalname);   // Lấy phần mở rộng của tệp tin (.png)
-        const file_path = `upload/${uuidv4()}_${ext}`; // Tạo tên tệp tin mới với phần mở rộng ban đầu
+        const file_path = `upload/${uuidv4()}${ext}`; // Tạo tên tệp tin mới với phần mở rộng ban đầu
         const objectName = file_path;
         const file_type = file.mimetype;
 
@@ -46,9 +46,10 @@ const uploadFile = async (file, file_name) => {
     }
 };
 
-const getAllFiles = async () => {
+const getAllFiles = async (page, limit) => {
     try {
-        const result = await db.query('SELECT * FROM files ORDER BY created_at DESC');
+        const offset = (page - 1) * limit;
+        const result = await db.query('SELECT * FROM files ORDER BY created_at DESC LIMIT $1 OFFSET $2', [limit, offset]);
         return result.rows;
     }
     catch (error) {
@@ -66,6 +67,19 @@ const getFileById = async (id) => {
 
     } catch (error) {
         throw new Error('Lỗi khi lấy tệp tin: ' + error.message);
+    }
+};
+
+const getMinioStreamById = async (id) => {
+    try {
+        const fileRecord = await getFileById(id);
+       const bucketName = process.env.BUCKET_NAME;
+       console.log('bucketName:', bucketName);
+        const objectName = fileRecord.file_path;
+        const fileStream = await minioClient.getObject(bucketName, objectName);
+        return { fileStream, fileRecord };
+    } catch (error) {
+        throw new Error('Lỗi khi lấy tệp tin từ MinIO: ' + error.message);
     }
 };
 
@@ -120,6 +134,7 @@ module.exports = {
     uploadFile,
     getAllFiles,
     getFileById,
+    getMinioStreamById,
     downloadFile,
     uploadFileModel,
     deleteFileModel

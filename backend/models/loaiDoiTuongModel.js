@@ -1,12 +1,30 @@
-const {db}= require('../config/database');
+const { db } = require('../config/database');
 
 const getLoaiDoiTuongPaginated = async (page, limit) => {
     const offset = (page - 1) * limit;
     try {
+        const totalResult = await db.query(`SELECT COUNT(*) FROM loai_doi_tuong`);
+        const total = parseInt(totalResult.rows[0].count);
         const result = await db.query(
             `SELECT * FROM loai_doi_tuong
+             ORDER BY nhom_doi_tuong
              LIMIT $1 OFFSET $2`, [limit, offset]
         );
+        // console.log('tổng số bản ghi:', total);
+        return {
+            data: result.rows,
+            page,
+            limit,
+            total
+        }
+    } catch (error) {
+        throw error;
+    }
+};
+
+const getAllNhomDoiTuong = async () => {
+    try {
+        const result = await db.query(`SELECT DISTINCT nhom_doi_tuong FROM loai_doi_tuong`);
         return result.rows;
     } catch (error) {
         throw error;
@@ -27,7 +45,7 @@ const getLoaiDoiTuongById = async (id) => {
 const createLoaiDoiTuong = async (data) => {
     try {
         const { ma_doi_tuong, ten_doi_tuong, nhom_doi_tuong } = data;
-      
+
         const result = await db.query(
             `INSERT INTO loai_doi_tuong (ma_doi_tuong, ten_doi_tuong, nhom_doi_tuong)
              VALUES ($1, $2, $3) RETURNING *`,
@@ -48,7 +66,7 @@ const updateLoaiDoiTuong = async (id, data) => {
         const { ma_doi_tuong, ten_doi_tuong, nhom_doi_tuong } = { ...data_old, ...data };
         const result = await db.query(
             `UPDATE loai_doi_tuong 
-             SET ma_doi_tuong = $1, ten_doi_tuong = $2, nhom_doi_tuong = $3
+             SET ma_doi_tuong = $1, ten_doi_tuong = $2, nhom_doi_tuong = $3, updated_at = NOW()
                 WHERE id = $4
                 RETURNING *`,
             [ma_doi_tuong, ten_doi_tuong, nhom_doi_tuong, id]
@@ -75,31 +93,30 @@ const deleteLoaiDoiTuong = async (id) => {
 const searchLoaiDoiTuong = async (data, page, limit) => {
     try {
         const offset = (page - 1) * limit;
-        const {nhom_doi_tuong,ma_doi_tuong, ten_doi_tuong} = data;
+        const { nhom_doi_tuong, ma_doi_tuong, ten_doi_tuong } = data;
 
         let conditions = [];
         let values = [];
         let index = 1;
 
         if (nhom_doi_tuong) {
-            conditions.push(`nhom_doi_tuong = $${index++}`);
-            values.push(nhom_doi_tuong);
+            conditions.push(`nhom_doi_tuong ILIKE $${index++}`);
+            values.push(`%${nhom_doi_tuong}%`);
         }
         if (ma_doi_tuong) {
-            conditions.push(`ma_doi_tuong = $${index++}`);
-            values.push(ma_doi_tuong);
+            conditions.push(`ma_doi_tuong ILIKE $${index++}`);
+            values.push(`%${ma_doi_tuong}%`);
         }
         if (ten_doi_tuong) {
-            conditions.push(`ten_doi_tuong = $${index++}`);
-            values.push(ten_doi_tuong);
+            conditions.push(`ten_doi_tuong ILIKE $${index++}`);
+            values.push(`%${ten_doi_tuong}%`);
         }
-
 
 
         console.log("Search conditions:", conditions);
         console.log("Search values:", values);
-       
-       let query = 'SELECT * FROM loai_doi_tuong';
+
+        let query = 'SELECT * FROM loai_doi_tuong';
         if (conditions.length > 0) {
             query += ' WHERE ' + conditions.join(' AND ');
         }
@@ -112,7 +129,12 @@ const searchLoaiDoiTuong = async (data, page, limit) => {
         console.log('Values:', values);
 
         const result = await db.query(query, values);
-        return result.rows;
+        return {
+            data: result.rows,
+            page,
+            limit,
+            total: result.rows.length
+        }
     } catch (error) {
         throw error;
     }
@@ -125,5 +147,6 @@ module.exports = {
     createLoaiDoiTuong,
     updateLoaiDoiTuong,
     deleteLoaiDoiTuong,
-    searchLoaiDoiTuong
+    searchLoaiDoiTuong,
+    getAllNhomDoiTuong
 }

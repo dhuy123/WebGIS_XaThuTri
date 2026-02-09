@@ -64,18 +64,18 @@ const deleteLoaiHienTrang = async (req, res) => {
     }
 };
 
-// const searchLoaiDoiTuong = async (req, res) => {
-//     try {
-//         const {nhom_doi_tuong,ma_doi_tuong, ten_doi_tuong} = req.query;
-//         const page = parseInt(req.query.page) || 1;
-//         const limit = parseInt(req.query.limit) || 10;
-//         console.log("Searching Loai Doi Tuong with keyword:", req.query);
-//         const result = await loaiDoiTuongModel.searchLoaiDoiTuong({nhom_doi_tuong, ma_doi_tuong, ten_doi_tuong}, page, limit);
-//         res.status(200).json({ message: 'Tìm kiếm loại đối tượng thành công', data: result });  
-//     } catch (error) {
-//         throw error;
-//     }
-// };
+const searchLoaiHienTrang = async (req, res) => {
+    try {
+        const { keyword } = req.query;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        console.log("Searching Loai Hien Trang with keyword:", keyword);
+        const result = await loaiHienTrangModel.searchLoaiHienTrang(keyword, page, limit);
+        res.status(200).json({ message: 'Tìm kiếm loại hiện trạng thành công', data: result });  
+    } catch (error) {
+        throw error;
+    }
+};
 
 
 module.exports = {
@@ -84,5 +84,5 @@ module.exports = {
     createLoaiHienTrang,
     updateLoaiHienTrang,
     deleteLoaiHienTrang,
-    // searchLoaiHienTrang
+    searchLoaiHienTrang
 }

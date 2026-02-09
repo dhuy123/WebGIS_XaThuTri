@@ -10,7 +10,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-
 const authRouter = require('./routes/authRouter');
 const userRouter = require('./routes/userRouter');
 const congTrinhTonGiaoRouter = require('./routes/congTrinhTonGiaoRouter');
@@ -25,7 +24,6 @@ const loaiTrangThaiMatRouter = require('./routes/loaiTrangThaiMatRouter');
 const xepHangDiTichRouter = require('./routes/xepHangDiTichRouter');
 const nhaVanHoaRouter = require('./routes/nhaVanHoaRouter');
 const coQuanLamViecRouter = require('./routes/coQuanLamViecRouter');
-
 
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);

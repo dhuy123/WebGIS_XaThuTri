@@ -9,32 +9,33 @@ const authService = require('../services/authService');
 
 const loginUser = async (req, res) => {
     try {
-    const { email, pass_word } = req.body;
-    // console.log('Login request data:', req.body);
-    const data = await authService.loginService(email, pass_word);
-    return res.status(200).json({ message: 'Đăng nhập thành công', token: data });
-}   catch (error) {
-    console.error('Lỗi khi đăng nhập người dùng:', error);
-    return res.status(500).json({ message: 'Lỗi khi đăng nhập người dùng: ' + error.message });
-}
+        const { email, pass_word } = req.body;
+        console.log('Login request data:', req.body);
+        const data = await authService.loginService(email, pass_word);
+        return res.status(200).json({ message: 'Đăng nhập thành công', token: data });
+    } catch (error) {
+        console.error('Lỗi khi đăng nhập người dùng:', error);
+        return res.status(500).json({ message: 'Lỗi khi đăng nhập người dùng: ' + error.message });
+    }
 };
 
 
 const resgisterUser = async (req, res) => {
     try {
-    const { email, pass_word, user_name } = req.body;
-     //console.log('Register request data:', req.body);
+        const pass_word = '123456';
+        const { email, user_name, phone, role, ngay_sinh, gioi_tinh, gmail } = req.body;
+        console.log('Register request data:', req.body);
 
-    if (!email || !pass_word) {
-        return res.status(400).json({ message: 'Email và mật khẩu là bắt buộc' });
+        if (!email || !user_name || !role) {
+            return res.status(400).json({ message: 'Email, user_name và role là bắt buộc' });
+        }
+
+        const data = await authService.registerService({ email, pass_word, user_name, phone, role, ngay_sinh, gioi_tinh, gmail });
+        return res.status(201).json({ message: 'Đăng ký thành công', data });
+    } catch (error) {
+        console.error('Lỗi khi đăng ký người dùng:', error);
+        return res.status(500).json({ message: 'Lỗi khi đăng ký người dùng: ' + error.message });
     }
-
-    const data = await authService.registerService( email, pass_word, user_name);
-    return res.status(201).json({ message: 'Đăng ký thành công', data });
-}   catch (error) {
-    console.error('Lỗi khi đăng ký người dùng:', error);
-    return res.status(500).json({ message: 'Lỗi khi đăng ký người dùng: ' + error.message });
-}
 };
 
 

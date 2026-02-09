@@ -42,28 +42,38 @@ const downloadFileController = async (req, res) => {
 
 
 const getAllFiles = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
     try {
-        const files = await fileModel.getAllFiles();
+        const files = await fileModel.getAllFiles(page, limit);
         return res.status(200).json({ message: 'Lấy danh sách tệp tin thành công', files });
     } catch (error) {
         console.error('Lỗi khi lấy danh sách tệp tin:', error);
         return res.status(500).json({ message: 'Lỗi khi lấy danh sách tệp tin: ' + error.message });
-    }   
+    }
 };
 
 const getFileById = async (req, res) => {
     try {
         const { id } = req.params;
-        const file = await fileModel.getFileById(id);
-        return res.status(200).json({ message: 'Lấy tệp tin thành công', file });
+        const { fileStream, fileRecord } = await fileModel.getMinioStreamById(id);
 
-        const fileStream = await minioClient.getObject(bucketName, objectName);
-        res.setHeader('Content-Type', file.mimetype);
+        // const fileStream = await minioClient.getObject(bucketName, objectName);
+        res.setHeader('Content-Type', fileRecord.file_type || 'application/octet-stream');
         res.setHeader(
             'Content-Disposition',
-            `attachment; filename="${file.file_name}"`
+            `inline; filename*=UTF-8''${encodeURIComponent(fileRecord.file_name)}`
         );
+
+        res.setHeader("Access-Control-Expose-Headers", "Content-Disposition, Content-Type");
+
+        fileStream.on("error", (err) => {
+            console.error(err);
+            if (!res.headersSent) res.status(404).json({ message: "Không tìm thấy file trên MinIO" });
+        });
+
         fileStream.pipe(res);
+        // return res.status(200).json({ message: 'Lấy tệp tin thành công', file });
     } catch (error) {
         console.error('Lỗi khi lấy tệp tin:', error);
         return res.status(500).json({ message: 'Lỗi khi lấy tệp tin: ' + error.message });

@@ -12,6 +12,16 @@ const getLoaiDoiTuongPaginated = async (req, res) => {
     }
 };
 
+const getAllNhomDoiTuong = async (req, res) => {
+    try {
+        const data = await loaiDoiTuongModel.getAllNhomDoiTuong();
+        res.status(200).json({ message:"Lấy danh sách nhóm đối tượng thành công", data });
+    }
+    catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 const getLoaiDoiTuongById = async (req, res) => {
     const { id } = req.params;
     try {
@@ -84,5 +94,6 @@ module.exports = {
     createLoaiDoiTuong,
     updateLoaiDoiTuong,
     deleteLoaiDoiTuong,
-    searchLoaiDoiTuong
+    searchLoaiDoiTuong,
+    getAllNhomDoiTuong
 }
