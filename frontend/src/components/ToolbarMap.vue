@@ -5,7 +5,7 @@
         <input type="radio" name="basemap" :checked="bm.getVisible()" @change="switchBaseMap(bm)" />
         {{ bm.get('title') }}
       </div> -->
-      <button @click="toggleBaseMap" title="Bản đồ nền">
+      <button @click="toggleBaseMap" title="Bản đồ nền" style="background-color: chartreuse;">
         <IconMap />
         <div class="item-basemap" v-show="isOpen">
           <div v-for="bm in baseMaps" :key="bm.get('title')" class="basemap-option" @click="switchBaseMap(bm)">
@@ -15,14 +15,17 @@
         </div>
       </button>
     </div>
-    <button @click="zoomIn" title="Phóng to">
-      <ZoomInOutlined />
+    <button @click="centerOnLocation" title="Định vị" style="background-color: lightblue;">
+      <IconMapPin></IconMapPin>
     </button>
-    <button @click="zoomOut" title="Thu nhỏ">
-      <ZoomOutOutlined />
+    <button @click="zoomIn" title="Phóng to" style="background-color: lightgreen;">
+      <IconZoomIn />
     </button>
-    <button title="Xuất bản đồ" @click="exportMap">
-      <FileImageOutlined />
+    <button @click="zoomOut" title="Thu nhỏ" style="background-color: lightcoral;">
+      <IconZoomOut />
+    </button>
+    <button title="Xuất bản đồ" @click="exportMap" style="background-color: lightyellow;">
+      <IconPolaroid />
     </button>
 
   </div>
@@ -34,7 +37,13 @@ import { ZoomInOutlined, ZoomOutOutlined, FileImageOutlined } from '@ant-design/
 import { onMounted } from 'vue';
 import TileLayer from 'ol/layer/Tile';
 import { XYZ } from 'ol/source';
-import { IconMap } from '@tabler/icons-vue';
+import { IconMap , IconMapPin, IconZoomIn, IconZoomOut, IconPolaroid } from '@tabler/icons-vue';
+import Geolocation from 'ol/Geolocation.js';
+import Feature from 'ol/Feature'
+import Point from 'ol/geom/Point'
+import VectorSource from 'ol/source/Vector'
+import VectorLayer from 'ol/layer/Vector'
+import { Style, Circle as CircleStyle, Fill, Stroke } from 'ol/style.js';
 
 const props = defineProps({
   map: Object
@@ -158,10 +167,53 @@ const exportMap = async () => {
   }
 };
 
+const vectorSource = new VectorSource();
+const centerOnLocation = () => {
 
+  const geolocation = new Geolocation({
+    tracking: true,
+    projection: props.map.getView().getProjection()
+  })
 
+  geolocation.once('change:position', () => {
 
+    const coords = geolocation.getPosition()
 
+    props.map.getView().animate({
+      center: coords,
+      zoom: 18,
+      duration: 1000
+    })
+
+    // tạo marker vị trí
+    const feature = new Feature({
+      geometry: new Point(coords)
+    })
+
+    feature.setStyle(new Style({
+      image: new CircleStyle({
+        radius: 6,
+        fill: new Fill({ color: 'blue' }),
+        stroke: new Stroke({ color: 'white', width: 2 })
+      })
+    }))
+
+    vectorSource.clear()
+    vectorSource.addFeature(feature)
+
+  })
+
+  geolocation.once('error', (error) => {
+    console.error('Lỗi định vị:', error.message)
+  })
+}
+
+onMounted(() => {
+  const vectorLayer = new VectorLayer({
+    source: vectorSource
+  })
+  props.map.addLayer(vectorLayer)
+})
 
 </script>
 

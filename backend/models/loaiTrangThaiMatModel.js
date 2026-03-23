@@ -3,11 +3,19 @@ const {db}= require('../config/database');
 const getLoaiTrangThaiMatPaginated = async (page, limit) => {
     const offset = (page - 1) * limit;
     try {
+        const totalResult = await db.query(`SELECT COUNT(*) FROM loai_trang_thai_nuoc_mat`);
+        const total = parseInt(totalResult.rows[0].count);
+         console.log('tổng số bản ghi:', total);
         const result = await db.query(
             `SELECT * FROM loai_trang_thai_nuoc_mat
              LIMIT $1 OFFSET $2`, [limit, offset]
         );
-        return result.rows;
+        return {
+            data: result.rows,
+            total,
+            page,
+            limit
+        };
     } catch (error) {
         throw error;
     }

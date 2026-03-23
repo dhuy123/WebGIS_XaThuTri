@@ -50,7 +50,13 @@ const getAllFiles = async (page, limit) => {
     try {
         const offset = (page - 1) * limit;
         const result = await db.query('SELECT * FROM files ORDER BY created_at DESC LIMIT $1 OFFSET $2', [limit, offset]);
-        return result.rows;
+        const totalResult = await db.query('SELECT COUNT(*) FROM files');
+        const total = parseInt(totalResult.rows[0].count);
+        console.log('tổng số bản ghi:', total);
+        return { data: result.rows,
+                page,
+                limit,
+             total };
     }
     catch (error) {
         throw new Error('Lỗi khi lấy danh sách tệp tin: ' + error.message);

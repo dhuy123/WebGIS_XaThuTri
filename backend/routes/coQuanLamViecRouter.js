@@ -7,7 +7,8 @@ const coQuanLamViec = require('../controllers/coQuanLamViecController');
 router.get('/', auth, 
      //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
       coQuanLamViec.getCoQuanLamViecPaginated);
-router.get('/:id', auth, 
+router.get('/:id', 
+    // auth, 
     //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
     coQuanLamViec.getCoQuanLamViecById);
 router.post('/', auth, 

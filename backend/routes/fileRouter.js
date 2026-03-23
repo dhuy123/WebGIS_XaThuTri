@@ -3,9 +3,13 @@ const router = express.Router();
 const fileController = require('../controllers/fileController');
 const auth = require('../middleware/authMiddleware');
 const { checkRole } = require('../middleware/checkRole');
+const { upload } = require('../middleware/fileMiddleware');
 
-router.post('/upload', auth,
+
+router.post('/upload', 
+    // auth,
     //checkRole(['ADMIN']),
+        upload.single('file_path'),
     fileController.uploadFileController);
 
 router.get('/download/:id', auth,
@@ -22,10 +26,12 @@ router.get('/:id',
     // checkRole(['ADMIN']),
     fileController.getFileById);
 
-router.put('/:id', auth,
-     checkRole(['ADMIN']),
+router.put('/:id', 
+    // auth,
+    //  checkRole(['ADMIN']),
     fileController.updateFileController);
-router.delete('/:id', auth,
+router.delete('/:id', 
+    // auth,
     // checkRole(['ADMIN']),
     fileController.deleteFileController);
 

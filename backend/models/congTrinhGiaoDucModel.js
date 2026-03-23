@@ -17,21 +17,21 @@ const { db } = require('../config/database');
 //     }
 // };
 
-// const getCongTrinhGiaoDucById = async (id) => {
-//     try {
-//         const result = await db.query(
-//             `SELECT dg.*, dt.ten_doi_tuong AS ten_doi_tuong,
-//                     httg.ten_hien_trang AS ten_hien_trang
-//              FROM cong_trinh_giao_duc dg
-//              JOIN loai_doi_tuong dt ON dg.ma_doi_tuong = dt.ma_doi_tuong AND dg.nhom_doi_tuong = dt.nhom_doi_tuong
-//              JOIN loai_hien_trang httg ON dg.loai_hien_trang = httg.ma_hien_trang
-//              WHERE dg.id = $1`, [id]
-//         );
-//         return result.rows[0];
-//     } catch (error) {
-//         throw error;
-//     }
-// }
+const getCongTrinhGiaoDucById = async (id) => {
+    try {
+        const result = await db.query(
+            `SELECT dg.*, dt.ten_doi_tuong AS ten_doi_tuong,
+                    httg.ten_hien_trang AS ten_hien_trang
+             FROM cong_trinh_giao_duc dg
+             JOIN loai_doi_tuong dt ON dg.ma_doi_tuong = dt.ma_doi_tuong AND dg.nhom_doi_tuong = dt.nhom_doi_tuong
+             JOIN loai_hien_trang httg ON dg.loai_hien_trang = httg.ma_hien_trang
+             WHERE dg.id = $1`, [id]
+        );
+        return result.rows[0];
+    } catch (error) {
+        throw error;
+    }
+}
 
 // const createCongTrinhGiaoDuc = async (data) => {
 //     try {
@@ -221,7 +221,7 @@ const countCongTrinhGiaoDuc = async () => {
 
 module.exports = {
     // getCongTrinhGiaoDucPaginated,
-    // getCongTrinhGiaoDucById,
+    getCongTrinhGiaoDucById,
     // createCongTrinhGiaoDuc,
     // updateCongTrinhGiaoDuc,
     // deleteCongTrinhGiaoDuc

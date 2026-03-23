@@ -9,25 +9,36 @@
                     <IconSettings />
                 </button>
             </div>
-            <div class="box" >
+            <div class="box">
                 <button title="Chọn đối tượng" @click="emitMode('select')" style=" background-color: turquoise;">
-                  <IconLocation />
+                    <IconLocation />
                 </button>
             </div>
-            <div class="box"> <button title="Thêm đối tượng" @click="toggleLayerMenu"><IconCirclePlus /></button>
-                <div v-if="showAddMenu" class="layer-menu" style="position: absolute; background: white; border: 1px solid #ccc; padding: 5px; margin-top: 5px; z-index: 1001;">
-                    <div v-for="layer in editableLayers" :key="layer.layerName" style=" display:flex; justify-content: space-between; padding: 3px; cursor: pointer;" @click="selectAddLayer(layer)">
-                        <div class="layer"> {{ layer.title }}</div>
-                       <div class="icon">
-                        <IconPoint v-if="layer.geometryType === 'Point'" />
-                        <IconLine v-else-if="layer.geometryType === 'LineString'" />
-                        <IconPolygon v-else-if="layer.geometryType === 'Polygon'" />
-                       </div>
+            <div class="box"> <button title="Thêm đối tượng" @click="toggleLayerMenu">
+                    <IconCirclePlus />
+                </button>
+                <div v-if="showAddMenu" class="layer-menu"
+                    style="position: absolute; background: white; border: 1px solid #ccc; padding: 5px; margin-top: 5px; z-index: 1001;">
+                    <div v-for="layer in editableLayers.filter(l =>
+                        !['duong_dia_gioi_hanh_chinh', 'dia_phan_hanh_chinh'].includes(l.layerName)
+                    )" :key="layer.layerName" style="display:flex; justify-content: space-between; padding: 3px; cursor: pointer;"
+                        @click="selectAddLayer(layer)">
+                        <div class="layer">{{ layer.title }}</div>
+
+                        <div class="icon">
+                            <IconPoint v-if="layer.geometryType === 'Point'" />
+                            <IconLine v-else-if="layer.geometryType === 'LineString'" />
+                            <IconPolygon v-else-if="layer.geometryType === 'Polygon'" />
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="box"> <button title="Sửa đối tượng" @click="emitMode('modify')"><IconEdit /></button></div>
-            <div class="box"> <button title="Xóa đối tượng" @click="emitMode('delete')"><IconTrash /></button></div>
+            <div class="box"> <button title="Sửa đối tượng" @click="emitMode('modify')">
+                    <IconEdit />
+                </button></div>
+            <div class="box"> <button title="Xóa đối tượng" @click="emitMode('delete')">
+                    <IconTrash />
+                </button></div>
 
             <div class="divider"></div>
 
@@ -35,16 +46,20 @@
             <div class="box"><button title="Xét vùng" @click="$emit('mode', 'box')"></button></div> -->
 
             <div class="divider"></div>
-            <div class="box"> <button title="Thoát" class="exit" @click="toggleMenu"> <IconDoorExit /> </button></div>
+            <div class="box"> <button title="Thoát" class="exit" @click="toggleMenu">
+                    <IconDoorExit />
+                </button></div>
 
         </div>
         <div class="box1" v-show="isOpenSetting">
-             <div class="box"> 
-                <button title="Hủy biên tập" class="cancel" @click="cancelEdits"><IconCircleX /> <span class="title-setting">Hủy biên tập</span> 
+            <div class="box">
+                <button title="Hủy biên tập" class="cancel" @click="cancelEdits">
+                    <IconCircleX /> <span class="title-setting">Hủy biên tập</span>
                 </button>
             </div>
-            <div class="box"> 
-                <button title="Lưu kết quả" class="save" @click="saveEdits"><IconDeviceFloppy /> <span class="title-setting">Lưu kết quả</span> 
+            <div class="box">
+                <button title="Lưu kết quả" class="save" @click="saveEdits">
+                    <IconDeviceFloppy /> <span class="title-setting">Lưu kết quả</span>
                 </button>
             </div>
         </div>
@@ -53,17 +68,18 @@
 </template>
 
 <script setup>
-const emit = defineEmits([ 'add-layer', 'mode', 'save', 'cancel', ]);
+const emit = defineEmits(['add-layer', 'mode', 'save', 'cancel',]);
 import { ref, computed } from 'vue';
-import { IconEdit, IconSettings, IconCircleX , IconDeviceFloppy, IconPoint, IconPolygon, IconLine,
-IconLocation, IconX, IconCirclePlus, IconTrash, IconDoorExit
- } from '@tabler/icons-vue';
+import {
+    IconEdit, IconSettings, IconCircleX, IconDeviceFloppy, IconPoint, IconPolygon, IconLine,
+    IconLocation, IconX, IconCirclePlus, IconTrash, IconDoorExit
+} from '@tabler/icons-vue';
 import { useAuthStore } from '@/stores/authStore';
 
 const props = defineProps({
     map: {
         type: Object,
-        required: true
+        required: true,
     },
     editableLayers: {
         type: Array,
@@ -86,7 +102,7 @@ const toggleMenu = () => {
     isOpen.value = !isOpen.value;
     isOpenSetting.value = false;
     console.log('menu biên tập:', isOpen.value);
-    
+
 };
 const toggleSetting = () => {
     isOpenSetting.value = !isOpenSetting.value;
@@ -103,7 +119,7 @@ const toggleLayerMenu = () => {
 const selectAddLayer = (layer) => {
     console.log('Chọn thêm lớp:', layer);
     showAddMenu.value = false;
-    emit ('add-layer', layer);
+    emit('add-layer', layer);
 };
 
 
@@ -122,7 +138,7 @@ const saveEdits = () => {
         console.log('Người dùng đã hủy lưu thay đổi.');
         return; // Dừng hàm nếu người dùng hủy
     }
-    emit('save' );
+    emit('save');
 };
 
 const cancelEdits = () => {
@@ -138,9 +154,9 @@ const cancelEdits = () => {
 <style scoped>
 .tool-edit {
     position: absolute;
-    top: 300px;
+    top: 360px;
     right: 10px;
-    z-index: 1000;
+    z-index: 10000;
 }
 
 .edit-menu {

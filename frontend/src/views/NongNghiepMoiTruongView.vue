@@ -112,6 +112,8 @@ import { useEditMap, selectStyle } from '@/api/api_edit_map.js';
 import { useAuthStore } from '@/stores/authStore';
 import { getLayerByPage } from '@/api/layer_config.js';
 
+import { getLayerById } from '@/api/api_form.js';
+
 const editableLayers = getLayerByPage('NongNghiepMoiTruongView');
 
 import Map from 'ol/Map.js';
@@ -124,12 +126,12 @@ import VectorLayer from 'ol/layer/Vector.js';
 import VectorSource from 'ol/source/Vector.js';
 import { GeoJSON } from 'ol/format.js';
 import { fromLonLat } from 'ol/proj'
+import { ScaleLine } from 'ol/control.js';
 
-import NhaForm from '@/components/forms/NhaForm.vue';
-// import CongTrinhYTeForm from '@/components/forms/CongTrinhYTeForm.vue';
-// import CongTrinhGiaoDucForm from '@/components/forms/CongTrinhGiaoDucForm.vue';
-// import CongTrinhTonGiaoForm from '@/components/forms/CongTrinhTonGiaoForm.vue';
-// import NhaVanHoaForm from '@/components/forms/NhaVanHoaForm.vue';
+import DiaPhanHanhChinhForm from '@/components/forms/DiaPhanHanhChinhForm.vue';
+import DuongDiaGioiForm from '@/components/forms/DuongDiaGioiForm.vue';
+import TruSoCoQuanNhaNuocForm from '@/components/forms/TruSoCoQuanNhaNuocForm.vue';
+import MatNuocForm from '@/components/forms/MatNuocForm.vue';
 
 import { sendWFSInsert, fetchWFSFeatures, sendWFSDelete, sendWFSUpdate } from '@/api/api_WFST.js';
  
@@ -160,10 +162,11 @@ const insertQueue = ref([])
 const updateQueue = ref([])
 
 const formMap = {
-    NhaForm
-    // Thêm các ánh xạ khác nếu có
+    DiaPhanHanhChinhForm,
+    DuongDiaGioiForm,
+    TruSoCoQuanNhaNuocForm,
+    MatNuocForm
 }
-
 const openNav = () => {
     isOpen.value = !isOpen.value;
     // console.log(isOpen.value);
@@ -323,7 +326,16 @@ const createMap = async () => {
             projection: 'EPSG:3857',
             center: fromLonLat([106.25853830720988, 20.489806531567343]),
             zoom: 14,
-        })
+        }),
+         controls: [
+            new ScaleLine({
+                units: 'metric',
+                bar: true,
+                steps: 4,
+                text: true,
+                minWidth: 140,
+            }),
+        ]
     });
     map.value.on('singleclick', async (evt) => {
         featureInfo.value = []
@@ -443,14 +455,29 @@ const loadEditFeatures = async (layerName) => {
     editSource.addFeatures(features)
 }
 
-const handleSelect = (feature) => {
+const handleSelect = async(feature) => {
     if (!feature) return
 
     selectedFeature.value = feature
     console.log('feature', feature)
 
-    const { geometry, geom, ...attrs } = feature.getProperties()
-    currentAttrs.value = attrs
+   if (!feature.getId()) {
+        console.warn('Feature chưa có ID')
+        return
+    }
+
+    const id = feature.getId().split('.')[1]
+    console.log('Feature ID:', id)
+
+    const layerName = currentEditLayer.value.layerName
+    console.log('Layer name:', layerName)
+
+    const data = await getLayerById(layerName, id)
+
+    console.log('Dữ liệu chi tiết của đối tượng:', data)
+    // const { geometry, geom, ...attrs } = feature.getProperties()
+    editMode.value = 'select'
+    currentAttrs.value = data.data
     showAttributeForm.value = true
     feature.setStyle(selectStyle)
     console.log('Đối tượng được chọn:', feature.getId());

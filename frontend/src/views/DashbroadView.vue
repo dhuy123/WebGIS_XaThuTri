@@ -21,15 +21,15 @@
                     Quản lý loại cây trồng
                 </RouterLink>
 
-                  <RouterLink to="/dashboard/loaitraithainuocmat" class="menu-item" active-class="active">
-                    Quản lý loại trại thải nước mặt 
+                  <RouterLink to="/dashboard/loaitrangthainuocmat" class="menu-item" active-class="active">
+                    Quản lý loại trạng thải nước mặt 
                 </RouterLink>
 
                   <RouterLink to="/dashboard/xephangditich" class="menu-item" active-class="active">
                     Quản lý loại xếp hạng di tích
                 </RouterLink>
 
-                <RouterLink to="/dashboard/vanban" class="menu-item" active-class="active">
+                <RouterLink to="/dashboard/document" class="menu-item" active-class="active">
                     Quản lý văn bản, tài liệu
                 </RouterLink>
 

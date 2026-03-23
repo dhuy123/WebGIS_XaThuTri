@@ -22,10 +22,12 @@ const getCongTrinhTonGiaoById = async (id) => {
     try {
         const result = await db.query(
             `SELECT tg.*, dt.ten_doi_tuong AS ten_doi_tuong,
-                    httg.ten_hien_trang AS ten_hien_trang
+                    httg.ten_hien_trang AS ten_hien_trang,
+                    xh.ten_xep_hang AS ten_xep_hang
              FROM cong_trinh_ton_giao tg
              JOIN loai_doi_tuong dt ON tg.ma_doi_tuong = dt.ma_doi_tuong AND tg.nhom_doi_tuong = dt.nhom_doi_tuong
              JOIN loai_hien_trang httg ON tg.loai_hien_trang = httg.ma_hien_trang
+             JOIN xep_hang_di_tich xh ON tg.xep_hang_di_tich = xh.ma_xep_hang
              WHERE tg.id = $1`, [id]
         );
         return result.rows[0];

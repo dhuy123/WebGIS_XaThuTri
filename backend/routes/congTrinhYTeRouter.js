@@ -7,7 +7,8 @@ const { checkRole } = require('../middleware/checkRole');
 router.get('/', auth,
     //checkRole(['ADMIN', 'USER']),
     congTrinhYTeController.getCongTrinhYTePaginated);
-router.get('/:id', auth,
+router.get('/:id', 
+    // auth,
     //checkRole(['ADMIN', 'USER']),
     congTrinhYTeController.getCongTrinhYTeById);
 router.post('/', auth,

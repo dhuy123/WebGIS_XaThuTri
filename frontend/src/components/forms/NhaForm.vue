@@ -3,65 +3,81 @@
     <div class="close" @click="$emit('update:showAttributeForm', false)"> <button>X</button> </div>
     <div class="content">
       <h3>Thông tin Nhà ở</h3>
-        <div class="box"> <label>ID *</label>
-        <input v-model="form.id" disabled="" />
+      <div class="box" v-if="isModify" > <label>ID *</label>
+        <input v-model="form.id" disabled="disabled" />
       </div>
-      <div class="box"> <label>Mã đối tượng *</label>
-        <input v-model="form.ma_doi_tuong" required :readonly="readOnly" />
+      <div class="box"> <label>Tên đối tượng *</label>
+        <select v-model="form.ma_doi_tuong" :disabled="isSelect">
+          <option value="">-- Chọn loại đối tượng --</option>
+          <option v-for="item in filteredLoaiDoiTuong" :key="item.ma_doi_tuong" :value="item.ma_doi_tuong">
+            {{ item.ten_doi_tuong }}
+          </option>
+        </select>
       </div>
 
-      <div class="box"> <label>Loại nhà</label>
-        <select v-model="form.loai_nha" :disabled="readOnly">
-          <option value="">-- Chọn --</option>
-          <option value="Nhà riêng">Nhà riêng</option>
-          <option value="Chung cư">Chung cư</option>
-        </select>
+      <div class="box" v-if="isSelect">
+        <label>Mã đối tượng * </label>
+        <input v-model="form.ma_doi_tuong" disabled />
       </div>
 
       <div class="box"> <label>Số tầng</label>
-        <input type="number" min="0" v-model.number="form.so_tang" :readonly="readOnly" />
+        <input type="number" min="0" v-model.number="form.so_tang" :disabled="isSelect" />
       </div>
-
 
       <div class="box">
         <label>Tên chủ nhà</label>
-        <input v-model="form.ten_chu_nha" :readonly="readOnly" />
+        <input v-model="form.ten_chu_nha" :disabled="isSelect" />
       </div>
 
-      <div class="box"><label>Hiện trạng</label>
-        <select v-model="form.loai_hien_trang" :disabled="readOnly">
-          <option value="">-- Chọn --</option>
-          <option value="HT01">HT01</option>
-          <option value="HT02">HT02</option>
+     <div class="box"> <label>Loại hiện trạng *</label >
+        <select v-model="form.loai_hien_trang" :disabled="isSelect">
+          <option value="">-- Chọn loại hiện trạng --</option>
+          <option v-for="item in dataHienTrang" :key="item.ma_hien_trang" :value="item.ma_hien_trang">
+            {{ item.ten_hien_trang }}
+          </option>
         </select>
       </div>
 
-      <div class="box">
-        <label>Mã thôn</label>
-        <input v-model="form.ma_thon" :readonly="readOnly" />
+      <div class="box" v-if="isSelect">
+        <label>Mã hiện trạng * </label>
+        <input v-model="form.loai_hien_trang" :disabled="isSelect" />
+      </div>
+
+      <div class="box"> <label>Thôn *</label >
+        <select v-model="form.ma_thon" :disabled="isSelect">
+          <option value="">-- Chọn thôn --</option>
+          <option v-for="item in dataNhaVanHoa" :key="item.ten" :value="item.ma_doi_tuong">
+            {{ item.ten }}
+          </option>
+        </select>
+      </div>
+
+      <div class="box" v-if="isSelect">
+        <label>Mã thôn * </label>
+        <input v-model="form.ma_thon" disabled />
       </div>
 
       <div class="box"><label>Địa chỉ</label>
-        <textarea v-model="form.dia_chi" :readonly="readOnly"></textarea>
+        <textarea v-model="form.dia_chi" :disabled="isSelect"></textarea>
       </div>
 
       <div class="box">
         <label>Nhóm đối tượng</label>
-        <input v-model="form.nhom_doi_tuong" :readonly="readOnly" />
+        <input v-model="form.nhom_doi_tuong" :disabled="isSelect" />
       </div>
 
       <div class="box" v-if="isAuthenticated">
         <label>Ngày tạo</label>
-        <input :value="formatDate(form.created_at)" :readonly="readOnly" />
+        <input :value="formatDate(form.created_at)" :disabled="isSelect" />
       </div>
       <div class="box" v-if="isAuthenticated">
         <label>Ngày cập nhật</label>
-        <input :value="formatDate(form.updated_at)" :readonly="readOnly" />
+        <input :value="formatDate(form.updated_at)" :disabled="isSelect" />
       </div>
 
     </div>
 
-    <div class="actions" v-show="isAuthenticated">
+    <div class="actions" v-show="isAuthenticated && !isSelect" >
       <!-- <button @click="$emit('cancel')"> Hủy</button> -->
       <button @click="$emit('apply')"> Áp dụng</button>
     </div>
@@ -71,11 +87,21 @@
 </template>
 
 <script setup>
-import { reactive, watch } from 'vue'
+import { reactive, ref, watch, onMounted, computed } from 'vue'
 import { useAuthStore } from '@/stores/authStore';
+import { getLoaiDoiTuong } from '@/api/api_loai_doi_tuong';
+import { getLoaiHienTrang } from '@/api/api_loai_hien_trang';
+import { getNhaVanHoa } from '@/api/api_nha_van_hoa';
 
 const authStore = useAuthStore();
 const isAuthenticated = authStore.isAuthenticated;
+const dataList = ref([]);
+const dataHienTrang = ref([]);
+const dataNhaVanHoa = ref([]);
+
+const isSelect = computed(() => props.mode === 'select')
+const isAdd = computed(() => props.mode === 'add')
+const isModify = computed(() => props.mode === 'modify')
 
 const dateNow = () => {
   const now = new Date().toISOString();
@@ -88,7 +114,7 @@ const formatDate = (data) => {
   return date;
 }
 
-/* ✅ NHẬN DATA TỪ MAP */
+/* NHẬN DATA TỪ MAP */
 const props = defineProps({
   modelValue: {
     type: Object,
@@ -96,6 +122,10 @@ const props = defineProps({
   },
   showAttributeForm: {
     type: Boolean,
+    required: true
+  },
+  mode: {
+    type: String,
     required: true
   },
   readOnly: { type: Boolean, default: false }
@@ -108,10 +138,10 @@ const emit = defineEmits([
   'cancel'
 ])
 
+
 /* ✅ STATE LOCAL */
 const form = reactive({
   ma_doi_tuong: '',
-  loai_nha: '',
   so_tang: 0,
   ten_chu_nha: '',
   nhom_doi_tuong: 'nha',
@@ -127,7 +157,7 @@ const form = reactive({
 watch(
   () => props.modelValue,
   (val) => {
-    console.log('props.modelValue:', val.created_at);
+    console.log('props.modelValue:', val);
     if (!val) return
     Object.assign(form, val)
   },
@@ -142,10 +172,51 @@ watch(
   },
   { deep: true }
 )
-// onMounted(() => {
-//   console.log('NhaForm mounted');
-//   dateNow();
-// });
+
+const fetchLoaiDoiTuong = async () => {
+  try {
+    const response = await getLoaiDoiTuong(1, 10000);
+    dataList.value = response.data.data;
+    console.log('Danh sách loại đối tượng:', dataList.value);
+  } catch (error) {
+    console.error('Error fetching loại đối tượng:', error);
+  }
+}
+
+const filteredLoaiDoiTuong = computed(() => {
+  return dataList.value.filter(
+    item => item.nhom_doi_tuong === 'nha'
+  )
+})
+
+const fetchLoaiHienTrang = async () => {
+  try {
+    const response = await getLoaiHienTrang(1, 10000);
+    dataHienTrang.value = response.data.data;
+    console.log('Danh sách loại hiện trạng:', dataHienTrang.value);
+  } catch (error) {
+    console.error('Error fetching loại hiện trạng:', error);
+  }
+}
+
+const fetchNhaVanHoa = async () => {
+  try {
+    const response = await getNhaVanHoa(1, 10000);
+    console.log('Danh sách nhà văn hóa:', response.data);
+    dataNhaVanHoa.value = response.data;
+  } catch (error) {
+    console.error('Error fetching nhà văn hóa:', error);
+  }
+}
+
+
+onMounted(() => {
+  fetchLoaiDoiTuong();
+  fetchLoaiHienTrang();
+  fetchNhaVanHoa();
+  console.log('NhaForm mounted');
+  // dateNow();
+});
 </script>
 
 <style scoped>

@@ -7,7 +7,8 @@ const congTrinhTonGiaoController = require('../controllers/congTrinhTonGiaoContr
 router.get('/', auth, 
      //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
       congTrinhTonGiaoController.getCongTrinhTonGiaoPaginated);
-router.get('/:id', auth, 
+router.get('/:id', 
+    // auth, 
     //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
     congTrinhTonGiaoController.getCongTrinhTonGiaoById);
 router.post('/', auth, 

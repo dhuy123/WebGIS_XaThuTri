@@ -32,7 +32,7 @@
                             <!-- <template v-if="column.dataIndex === 'stt'">
                                 {{ record.index + 1 }}
                             </template> -->
-                            <template v-if="['ten_doi_tuong'].includes(column.dataIndex)">
+                            <template v-if="['ten_doi_tuong','ma_doi_tuong','nhom_doi_tuong'].includes(column.dataIndex)">
                                 <div>
                                     <a-input v-if="editableData[record.id]"
                                         v-model:value="editableData[record.id][column.dataIndex]"

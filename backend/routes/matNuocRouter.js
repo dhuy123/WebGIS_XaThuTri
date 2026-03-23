@@ -7,8 +7,9 @@ const matNuocController = require('../controllers/matNuocController');
 router.get('/', auth,
     checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
     matNuocController.getMatNuocPaginated);
-router.get('/:id', auth,
-        checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
+router.get('/:id',
+    //  auth,
+    //     checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
     matNuocController.getMatNuocById);
 router.post('/', auth,
     //checkFunctionPermission('MAT_NUOC_CREATE'),

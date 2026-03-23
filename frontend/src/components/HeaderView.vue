@@ -85,7 +85,7 @@
                     </a-form-item>
 
                     <a-form-item label="Giới tính" :name="['user', 'gioi_tinh']">
-                        <a-select v-model:value="formState.user.gioi_tinh" placeholder="Chọn giới tính">
+                        <a-select v-model:value="formState.user.gioi_tinh">
                             <a-select-option value="Nam">Nam</a-select-option>
                             <a-select-option value="Nữ">Nữ</a-select-option>
                         </a-select>

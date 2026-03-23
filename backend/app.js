@@ -24,21 +24,27 @@ const loaiTrangThaiMatRouter = require('./routes/loaiTrangThaiMatRouter');
 const xepHangDiTichRouter = require('./routes/xepHangDiTichRouter');
 const nhaVanHoaRouter = require('./routes/nhaVanHoaRouter');
 const coQuanLamViecRouter = require('./routes/coQuanLamViecRouter');
+const nhaRouter = require('./routes/nhaRouter');
+const duongDiaGioiHanhChinhRouter = require('./routes/duongDiaGioiHanhChinhRouter');
+const diaPhanHanhChinhRouter = require('./routes/diaPhanHanhChinh');
 
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
-app.use('/api/congTrinhTonGiao', congTrinhTonGiaoRouter);
-app.use('/api/congTrinhYTe', congTrinhYTeRouter);
-app.use('/api/congTrinhGiaoDuc', congTrinhGiaoDucRouter);
-app.use('/api/duongBo', duongBoRouter);
-app.use('/api/matNuoc', matNuocRouter);
+app.use('/api/cong_trinh_ton_giao', congTrinhTonGiaoRouter);
+app.use('/api/cong_trinh_y_te', congTrinhYTeRouter);
+app.use('/api/cong_trinh_giao_duc', congTrinhGiaoDucRouter);
+app.use('/api/duong_bo', duongBoRouter);
+app.use('/api/mat_nuoc', matNuocRouter);
 app.use('/api/files', fileRouter);
 app.use('/api/loaiDoiTuong', loaiDoiTuongRouter);
 app.use('/api/loaiHienTrang', loaiHienTrangRouter);
 app.use('/api/loaiTrangThaiMat', loaiTrangThaiMatRouter);
 app.use('/api/xepHangDiTich', xepHangDiTichRouter);
-app.use('/api/nhaVanHoa', nhaVanHoaRouter);
-app.use('/api/coQuanLamViec', coQuanLamViecRouter);
+app.use('/api/nha_van_hoa', nhaVanHoaRouter);
+app.use('/api/tru_so_co_quan_nha_nuoc', coQuanLamViecRouter);
+app.use('/api/nha', nhaRouter);
+app.use('/api/duong_dia_gioi_hanh_chinh', duongDiaGioiHanhChinhRouter);
+app.use('/api/dia_phan_hanh_chinh', diaPhanHanhChinhRouter);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

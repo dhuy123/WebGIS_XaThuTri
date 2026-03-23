@@ -4,7 +4,7 @@ const getLoaiDoiTuong = async (page, limit) => {
     try {
         const response = await apiClient.get(`/loaiDoiTuong?page=${page}&limit=${limit}`);
         console.log('API-getLoaiDoiTuong response:', response.data);
-        console.log('tổng sô bản ghi:', response);
+        console.log('tổng sô bản ghi:', response.data.data.total);
         return response.data;
     } catch (error) {
         console.error('Lỗi lấy danh sách loại đối tượng:', error);

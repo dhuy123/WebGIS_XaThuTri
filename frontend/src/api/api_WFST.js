@@ -14,6 +14,7 @@ const getLayerConfig = (layerName) => {
 const builWFSInsertXML = (feature, layer) => {
   console.log('feature to insert:', feature);
   const format = new GeoJSON();
+  console.log('Layer config in builWFSInsertXML:', layer);
 
   if (!layer.workspace) {
     throw new Error(`❌ Layer ${layer.layerName} chưa khai báo workspace`)
@@ -43,7 +44,8 @@ const builWFSInsertXML = (feature, layer) => {
     if (
       !hiddenFields.includes(key) &&
       props[key] !== null &&
-      props[key] !== undefined
+      props[key] !== undefined&&
+      props[key] !== ''
     ) {
       propertyXML += `
         <thutri:${key}>${escapeXML(props[key])}</thutri:${key}>
@@ -97,6 +99,14 @@ const geometryToGML = (geometry) => {
 </gml:MultiPolygon>`;
     }
 
+    case 'Point': {
+      const [x, y] = geometry.coordinates;
+      return `
+<gml:Point srsName="EPSG:4326">
+  <gml:pos>${x} ${y}</gml:pos>
+</gml:Point>`;
+    }
+
     case 'MultiPolygon': {
       const members = geometry.coordinates.map(polygon => {
         const ring = toPosList(polygon[0]);
@@ -138,6 +148,7 @@ const sendWFSInsert = async (feature, layerName) => {
   const layerConfig = getLayerConfig(layerName);
 
   console.log('Layer config:', layerConfig);
+  console.log('Feature to insert:', feature);
 
   if (!layerConfig) {
     throw new Error('Layer config not found');
@@ -171,7 +182,7 @@ const sendWFSInsert = async (feature, layerName) => {
   const text = await response.text();
 
   if (!response.ok) {
-    console.error('❌ WFS Insert failed:', text);
+    console.error('WFS Insert failed:', text);
     throw new Error(text);
   }
 
@@ -196,7 +207,7 @@ const sendWFSDelete = async (feature, layerName) => {
   xmlns:ogc="http://www.opengis.net/ogc"
   xmlns:wfs="http://www.opengis.net/wfs"
   xmlns:thutri="http://thutri.org">
-  <wfs:Delete typeName="thutri:${layerConfig.layerName} || ''}">
+  <wfs:Delete typeName="thutri:${layerConfig.layerName}">
     <ogc:Filter>
       <ogc:FeatureId fid="${featureId}"/>
     </ogc:Filter>
@@ -220,12 +231,11 @@ const sendWFSDelete = async (feature, layerName) => {
   }
 
   const text = await res.text();
-  console.log('✅ WFS Delete success:', text);
   return text;
-
 }
 
-const fetchWFSFeatures = async (workspace, layerName, {cqlFilter} = {}) => {
+const fetchWFSFeatures = async (workspace, layerName, { cqlFilter } = {}) => {
+  console.log('vào đây')
   const url = `${GEOSERVER_URL}/${workspace}/ows` +
     `?service=WFS` +
     `&version=1.1.0` +
@@ -233,8 +243,8 @@ const fetchWFSFeatures = async (workspace, layerName, {cqlFilter} = {}) => {
     `&typeName=${workspace}:${layerName}` +
     `&maxFeatures=5000` +
     `&sortBy=id ASC` +
-    `&outputFormat=application/json`+
-    `&propertyName=${encodeURIComponent(getLayerConfig(layerName)?.propertyName || '')}`+
+    `&outputFormat=application/json` +
+    `&propertyName=${encodeURIComponent(getLayerConfig(layerName)?.propertyName || '')}` +
     (cqlFilter ? `&CQL_FILTER=${encodeURIComponent(cqlFilter)}` : '');
 
   console.log('fetchWFSFeatures URL:', url)
@@ -277,7 +287,7 @@ const builWFSUpdateXML = (feature, layer) => {
   const geom = geojson.geometry
   const props = geojson.properties || {}
 
-  const hiddenFields = ['id', 'geom', 'geometry']
+  const hiddenFields = ['id', 'geom', 'geometry', 'ten_hien_trang', 'ten_doi_tuong', 'ten_xep_hang'];
 
   let propsXML = ''
   for (const key in props) {
@@ -352,6 +362,21 @@ const sendWFSUpdate = async (feature, layerName) => {
   return text
 }
 
+const exportShp = async (layerName) => {
+  const layerConfig = getLayerConfig(layerName)
+
+  if (!layerConfig) throw new Error('Layer config not found')
+  const url = `${GEOSERVER_URL}/${layerConfig.workspace}/ows` +
+    `?service=WFS` +
+    `&version=1.1.0` +
+    `&request=GetFeature` +
+    `&typeName=${layerConfig.workspace}:${layerConfig.layerName}` +
+    `&outputFormat=SHAPE-ZIP` +
+    `&srsName=EPSG:4326`;
+
+  window.open(url, '_blank');
+}
+
 
 export {
   builWFSInsertXML,
@@ -360,5 +385,6 @@ export {
   sendWFSDelete,
   loadFeatureByFid,
   builWFSUpdateXML,
-  sendWFSUpdate
+  sendWFSUpdate,
+  exportShp
 };

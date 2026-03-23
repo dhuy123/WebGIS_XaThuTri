@@ -14,21 +14,21 @@ const congTrinhGiaoDucModel = require('../models/congTrinhGiaoDucModel');
 //     }   
 // };
  
-// const getCongTrinhGiaoDucById = async (req, res) => {
-//     try {
-//         const id = req.params.id;
-//         const congTrinhGiaoDuc = await congTrinhGiaoDucModel.getCongTrinhGiaoDucById(id);
-//         if (!congTrinhGiaoDuc) {
-//             return res.status(404).json({ message: 'Không tìm thấy công trình giáo dục' });
-//         }
-//         return res.status(200).json({ 
-//             message: 'Lấy công trình giáo dục thành công',
-//             data: congTrinhGiaoDuc });
-//     } catch (error) {
-//         console.error('Lỗi khi lấy công trình giáo dục:', error);
-//         return res.status(500).json({ message: 'Lỗi khi lấy công trình giáo dục: ' + error.message });
-//     }
-// };
+const getCongTrinhGiaoDucById = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const congTrinhGiaoDuc = await congTrinhGiaoDucModel.getCongTrinhGiaoDucById(id);
+        if (!congTrinhGiaoDuc) {
+            return res.status(404).json({ message: 'Không tìm thấy công trình giáo dục' });
+        }
+        return res.status(200).json({ 
+            message: 'Lấy công trình giáo dục thành công',
+            data: congTrinhGiaoDuc });
+    } catch (error) {
+        console.error('Lỗi khi lấy công trình giáo dục:', error);
+        return res.status(500).json({ message: 'Lỗi khi lấy công trình giáo dục: ' + error.message });
+    }
+};
 
 // const createCongTrinhGiaoDuc = async (req, res) => {
 //     try {
@@ -86,7 +86,7 @@ const countCongTrinhGiaoDuc = async (req, res) => {
 
 module.exports = {
     // getCongTrinhGiaoDucPaginated,
-    //  getCongTrinhGiaoDucById,
+     getCongTrinhGiaoDucById,
     //  createCongTrinhGiaoDuc,
     // updateCongTrinhGiaoDuc,
     // deleteCongTrinhGiaoDuc

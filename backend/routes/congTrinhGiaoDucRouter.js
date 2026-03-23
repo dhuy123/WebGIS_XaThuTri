@@ -7,9 +7,15 @@ const congTrinhGiaoDucController = require('../controllers/congTrinhGiaoDucContr
 // router.get('/', auth,
 //     //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']), 
 //     congTrinhGiaoDucController.getCongTrinhGiaoDucPaginated);
-// router.get('/:id', auth,
-//     // checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
-//     congTrinhGiaoDucController.getCongTrinhGiaoDucById);
+
+router.get('/count',
+    // auth,
+    //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
+    congTrinhGiaoDucController.countCongTrinhGiaoDuc);
+router.get('/:id',
+    //  auth,
+    // checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
+    congTrinhGiaoDucController.getCongTrinhGiaoDucById);
 // router.post('/', auth,
 //     //checkRole(['ADMIN', 'EMPLOYEE']),
 //     congTrinhGiaoDucController.createCongTrinhGiaoDuc);
@@ -19,10 +25,6 @@ const congTrinhGiaoDucController = require('../controllers/congTrinhGiaoDucContr
 // router.delete('/:id', auth,
 //     //checkRole(['ADMIN', 'EMPLOYEE']), 
 //     congTrinhGiaoDucController.deleteCongTrinhGiaoDuc);
-router.get('/count',
-    // auth,
-    //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
-    congTrinhGiaoDucController.countCongTrinhGiaoDuc);
 
 
 /** * @swagger
@@ -59,7 +61,7 @@ router.get('/count',
 
 /**
  * @swagger
- * /api/congTrinhGiaoDuc/{id}:
+ * /api/cong_trinh_giao_duc/{id}:
  *   get:
  *     summary: Lấy thông tin công trình giáo dục theo ID
  *     tags:
@@ -274,7 +276,7 @@ router.get('/count',
 
 /**
  * @swagger
- * /api/congTrinhGiaoDuc/count:
+ * /api/cong_trinh_giao_duc/count:
  *   get:
  *    summary: Đếm tổng số công trình giáo dục
  *    tags: [CongTrinhGiaoDuc]

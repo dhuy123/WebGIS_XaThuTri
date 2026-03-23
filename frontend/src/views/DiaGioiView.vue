@@ -2,8 +2,8 @@
     <div class="map-layout">
         <HeaderView class="main-header" />
         <div class="container-map">
-            <EditMenu :map="map" :editableLayers="editableLayers" @add-layer="handleAddLayer" @save="handleSave" @cancel="handleCancel"
-                @mode="handleMode" />
+            <!-- <EditMenu :map="map" :editableLayers="editableLayers" @add-layer="handleAddLayer" @save="handleSave"
+                @cancel="handleCancel" @mode="handleMode" /> -->
             <ToolbarMap v-if="map" :map="map" />
             <component v-if="showAttributeForm" :is="currentFormComponent" :modelValue="currentAttrs"
                 :showAttributeForm="showAttributeForm" @update:modelValue="handleUpdate"
@@ -43,7 +43,9 @@
                                             <input type="checkbox" v-model="layer.visible"
                                                 @change="toggleLayer(layer)" />
                                             {{ layer.title }}
-                                            <TableOutlined :style="{ display: layer.visible ? 'inline' : 'none', marginLeft: '20px' }" title="Bảng dữ liệu"/>
+                                            <TableOutlined
+                                                :style="{ display: layer.visible ? 'inline' : 'none', marginLeft: '20px' }"
+                                                title="Bảng dữ liệu" />
                                             <br>
 
                                             <input type="range" min="0" max="1" step="0.1"
@@ -67,7 +69,7 @@
                         <div v-if="activeTab === 'legend'">
                             <!-- Nội dung cho tab Chú giải -->
                             <h3>Chú giải bản đồ</h3>
-                            
+
                         </div>
                     </div>
 
@@ -105,7 +107,7 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import HeaderView from '@/components/HeaderView.vue';
 import ToolbarMap from '@/components/ToolbarMap.vue';
-import { LeftCircleOutlined,TableOutlined } from '@ant-design/icons-vue';
+import { LeftCircleOutlined, TableOutlined } from '@ant-design/icons-vue';
 import { IconStackFront, IconCalendarDot } from '@tabler/icons-vue';
 import { IconFolderOpen, IconFolder } from '@tabler/icons-vue';
 import EditMenu from '@/components/EditMenuView.vue';
@@ -113,7 +115,7 @@ import { useEditMap, selectStyle } from '@/api/api_edit_map.js';
 import { useAuthStore } from '@/stores/authStore';
 import { getLayerByPage } from '@/api/layer_config.js';
 
-const editableLayers = getLayerByPage('VanHoaXaHoiView');
+const editableLayers = getLayerByPage('DiaGioiView');
 
 import Map from 'ol/Map.js';
 import View from 'ol/View.js';
@@ -124,16 +126,16 @@ import LayerGroup from 'ol/layer/Group.js';
 import VectorLayer from 'ol/layer/Vector.js';
 import VectorSource from 'ol/source/Vector.js';
 import { GeoJSON } from 'ol/format.js';
-import { fromLonLat } from 'ol/proj'
+import { fromLonLat } from 'ol/proj';
 
-import NhaForm from '@/components/forms/NhaForm.vue';
-// import CongTrinhYTeForm from '@/components/forms/CongTrinhYTeForm.vue';
-// import CongTrinhGiaoDucForm from '@/components/forms/CongTrinhGiaoDucForm.vue';
-// import CongTrinhTonGiaoForm from '@/components/forms/CongTrinhTonGiaoForm.vue';
-// import NhaVanHoaForm from '@/components/forms/NhaVanHoaForm.vue';
+import DiaPhanHanhChinhForm from '@/components/forms/DiaPhanHanhChinhForm.vue';
+import DuongDiaGioiForm from '@/components/forms/DuongDiaGioiForm.vue';
+import TruSoCoQuanNhaNuocForm from '@/components/forms/TruSoCoQuanNhaNuocForm.vue';
 
 import { sendWFSInsert, fetchWFSFeatures, sendWFSDelete, sendWFSUpdate } from '@/api/api_WFST.js';
- 
+
+import { getLayerById } from '@/api/api_form.js' 
+
 const authStore = useAuthStore();
 const isAuthenticated = computed(() => authStore.isAuthenticated);
 
@@ -161,8 +163,9 @@ const insertQueue = ref([])
 const updateQueue = ref([])
 
 const formMap = {
-    NhaForm
-    // Thêm các ánh xạ khác nếu có
+    DiaPhanHanhChinhForm,
+    DuongDiaGioiForm,
+    TruSoCoQuanNhaNuocForm
 }
 
 const openNav = () => {
@@ -447,14 +450,25 @@ const loadEditFeatures = async (layerName) => {
     editSource.addFeatures(features)
 }
 
-const handleSelect = (feature) => {
+const handleSelect = async (feature) => {
     if (!feature) return
 
     selectedFeature.value = feature
     console.log('feature', feature)
 
-    const { geometry, geom, ...attrs } = feature.getProperties()
-    currentAttrs.value = attrs
+     const id = feature.getId().split('.')[1]
+    console.log('Feature ID:', id)
+
+    const layerName = currentEditLayer.value.layerName
+    console.log('Layer name:', layerName)
+
+    const data = await getLayerById(layerName, id)
+
+    //const { geometry, geom, ...attrs } = feature.getProperties()
+
+    editMode.value = 'select'
+
+    currentAttrs.value = data.data
     showAttributeForm.value = true
     feature.setStyle(selectStyle)
     console.log('Đối tượng được chọn:', feature.getId());

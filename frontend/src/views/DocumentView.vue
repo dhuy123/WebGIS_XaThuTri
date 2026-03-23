@@ -10,10 +10,10 @@
                 <hr />
 
                 <div class="main-document">
-                    <div class="sreach">
+                    <!-- <div class="sreach">
                         <a-input-search v-model:value="value" placeholder="input search text" enter-button
                             style="width: 300px;" @search="onSearch" />
-                    </div>
+                    </div> -->
 
                     <div class="box box-document">
                         <div class="box1" v-for="file in files" :key="file.id">
@@ -69,7 +69,7 @@
             <audio v-else-if="isAudio && previewUrl" :src="previewUrl" controls style="width:100%" />
 
             <div v-else>
-                Không preview trực tiếp được file này. (Đã có nút Tải về)
+                <h4>Không thể xem được file này. Vui lòng tải về để xem.</h4>
             </div>
         </a-modal>
     </div>
@@ -97,7 +97,7 @@ function canPreview(mime) {
     if (mime === "application/pdf") return true;
     if (mime.startsWith("image/")) return true;
     if (mime.startsWith("video/")) return true;
-    if (mime.startsWith("audio/")) return true;
+    if (mime.startsWith("audio/")) return false;
     if (mime.startsWith("text/")) return true;
     return false;
 }
@@ -130,42 +130,33 @@ function downloadBlob(url, filename) {
 
 async function fetchFiles() {
     const res = await getFiles();
-    files.value = res.files || [];
+    console.log("Fetched files:", res.files);
+    files.value = res.files.data || [];
 }
 
 async function onView(file) {
-    // set current
     currentFile.value = file;
 
-    // cleanup old url
     if (previewUrl.value) URL.revokeObjectURL(previewUrl.value);
     previewUrl.value = null;
 
-    // get blob
     const res = await getFileById(file.id);
 
-    // mime
     const mime =
         res?.headers?.["content-type"] ||
         file.file_type ||
         "application/octet-stream";
     currentMime.value = mime;
 
-    // ✅ ép blob chắc chắn để tránh lỗi createObjectURL overload
     const data = res.data;
     const blob = data instanceof Blob ? data : new Blob([data], { type: mime });
 
-    // nếu không preview được -> tải luôn
     const url = URL.createObjectURL(blob);
 
     if (!canPreview(mime)) {
-        const filename = parseFilenameFromHeader(res.headers?.["content-disposition"] || "", file.file_name || `file-${file.id}`);
-        downloadBlob(url, filename);
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        return;
+        open.value = false; 
     }
 
-    // preview
     previewUrl.value = url;
     open.value = true;
 }
@@ -224,7 +215,7 @@ onBeforeUnmount(cleanup);
 }
 
 .page-document .box {
-    height: 520px;
+    height: 570px;
     padding: 20px;
     border-radius: 8px;
     box-shadow: #c1c0c0 0px 0px 10px;

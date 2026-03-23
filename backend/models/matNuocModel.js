@@ -3,15 +3,22 @@ const {db} = require('../config/database');
 const getMatNuocPaginated = async (page, limit) => {
     const offset = (page - 1) * limit;
     try {
+        const totalResult = await db.query(`SELECT COUNT(*) FROM mat_nuoc`);
+        const total = parseInt(totalResult.rows[0].count);
+         console.log('tổng số bản ghi:', total);
         const result = await db.query(
             `SELECT mn.* , dt.ten_doi_tuong,  lttnm.ten
                 FROM mat_nuoc mn
                 JOIN loai_doi_tuong dt ON mn.ma_doi_tuong = dt.ma_doi_tuong AND mn.nhom_doi_tuong = dt.nhom_doi_tuong
-              
-                JOIN loai_trang_thai_nuoc_mat lttnm ON mn.loai_trang_thai = lttnm.ma
+                JOIN loai_trang_thai_nuoc_mat lttnm ON mn.loai_trang_thai = lttnm.id
                 LIMIT $1 OFFSET $2`, [limit, offset]
         );
-        return result.rows;
+        return {
+            data: result.rows,
+            total,
+            page,
+            limit
+        };
     } catch (error) {
         throw error;
     } 
@@ -24,7 +31,7 @@ const getMatNuocById = async (id) => {
                 FROM mat_nuoc mn
                 JOIN loai_doi_tuong dt ON mn.ma_doi_tuong = dt.ma_doi_tuong AND mn.nhom_doi_tuong = dt.nhom_doi_tuong
                 
-                JOIN loai_trang_thai_nuoc_mat lttnm ON mn.loai_trang_thai = lttnm.ma
+                JOIN loai_trang_thai_nuoc_mat lttnm ON mn.loai_trang_thai = lttnm.id
                 WHERE mn.id = $1`, [id]
         );
         console.log('Query result:', result.rows);

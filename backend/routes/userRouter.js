@@ -12,7 +12,7 @@ router.get('/:id', auth,
      userController.getUserById);
 router.put('/:id', 
     auth, 
-    checkRole(['ADMIN']),
+    checkRole(['ADMIN',"EMPLOYEE"]),
      userController.updateUser);
 router.delete('/:id', auth, 
     //checkRole(['ADMIN']),

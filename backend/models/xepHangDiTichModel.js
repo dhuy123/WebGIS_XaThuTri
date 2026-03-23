@@ -3,11 +3,19 @@ const {db}= require('../config/database');
 const getXepHangDiTichPaginated = async (page, limit) => {
     const offset = (page - 1) * limit;
     try {
+
+        const totalResult = await db.query(`SELECT COUNT(*) FROM xep_hang_di_tich`);
+        const total = parseInt(totalResult.rows[0].count);
         const result = await db.query(
             `SELECT * FROM xep_hang_di_tich
              LIMIT $1 OFFSET $2`, [limit, offset]
         );
-        return result.rows;
+      return {
+            data: result.rows,
+            total,
+            page,
+            limit
+        };
     } catch (error) {
         throw error;
     }

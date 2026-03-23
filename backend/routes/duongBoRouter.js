@@ -7,8 +7,9 @@ const duongBoController = require('../controllers/duongBoController');
 router.get('/', auth, 
     checkRole (['ADMIN', 'EMPLOYEE', 'VIEWER']),
     duongBoController.getDuongBoPaginated);
-router.get('/:id', auth, 
-     checkRole (['ADMIN', 'EMPLOYEE', 'VIEWER']),
+router.get('/:id',
+    //  auth, 
+    //  checkRole (['ADMIN', 'EMPLOYEE', 'VIEWER']),
     duongBoController.getDuongBoById);
 router.post('/', auth, 
     checkRole(['ADMIN', 'EMPLOYEE']), 

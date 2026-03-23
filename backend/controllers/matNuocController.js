@@ -5,7 +5,7 @@ const getMatNuocPaginated = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const matNuoc = await matNuocModel.getMatNuocPaginated(page, limit);
-        return res.status(200).json({ 
+        res.status(200).json({ 
             message: 'Lấy danh sách mặt nước thành công',
             data: matNuoc });
     } catch (error) {

@@ -4,7 +4,8 @@ const loaiDoiTuongController = require('../controllers/loaiDoiTuongController');
 const auth = require('../middleware/authMiddleware');
 const { checkRole } = require('../middleware/checkRole');
 
-router.get('/', auth,
+router.get('/', 
+    // auth,
     //checkRole(['ADMIN', 'USER']),
     loaiDoiTuongController.getLoaiDoiTuongPaginated);
 router.get('/nhomDoiTuong',

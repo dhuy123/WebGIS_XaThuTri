@@ -89,7 +89,7 @@ const useEditMap = (map, editSource) => { //map: bản đồ, vectorSource: laye
                 }
 
                 // ✅ chuyển về select để làm mode khác
-                enableSelect(onSelected)
+                // enableSelect(onSelected)
             }, 0)
         })
 

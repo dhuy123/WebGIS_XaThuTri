@@ -2,10 +2,11 @@
     <div class="map-layout">
         <HeaderView class="main-header" />
         <div class="container-map">
-            <EditMenu :map="map" :editableLayers="editableLayers" @add-layer="handleAddLayer" @save="handleSave"
-                @cancel="handleCancel" @mode="handleMode" />
+            <EditMenu v-if="map" :map="map" :editableLayers="editableLayers" @add-layer="handleAddLayer"
+                @save="handleSave" @cancel="handleCancel" @mode="handleMode" />
             <ToolbarMap v-if="map" :map="map" />
-            <component v-if="showAttributeForm" :is="currentFormComponent" :modelValue="currentAttrs"
+            <component v-if="showAttributeForm" :is="currentFormComponent" :modelValue="currentAttrs" 
+         :mode="editMode"
                 :showAttributeForm="showAttributeForm" @update:modelValue="handleUpdate"
                 @update:showAttributeForm="val => showAttributeForm = val" @apply="handleApplyAttrs" />
 
@@ -46,6 +47,8 @@
                                             <TableOutlined
                                                 :style="{ display: layer.visible ? 'inline' : 'none', marginLeft: '20px' }"
                                                 title="Bảng dữ liệu" @click="openLayerTable(layer)" />
+                                            <button @click="exportLayerData(layer)" :style="{ display: layer.visible ? 'inline' : 'none', marginLeft: '20px' }" v-if="isAuthenticated"
+                                            style="margin-left: 10px; border: none; border-radius: none;"> SHP</button>
                                             <br>
 
                                             <input type="range" min="0" max="1" step="0.1"
@@ -149,6 +152,8 @@ import { useEditMap, selectStyle } from '@/api/api_edit_map.js';
 import { useAuthStore } from '@/stores/authStore';
 import { getLayerByPage } from '@/api/layer_config.js';
 
+import { getLayerById } from '@/api/api_form.js'
+
 const editableLayers = getLayerByPage('VanHoaXaHoiView');
 
 import Map from 'ol/Map.js';
@@ -161,16 +166,19 @@ import VectorLayer from 'ol/layer/Vector.js';
 import VectorSource from 'ol/source/Vector.js';
 import { GeoJSON } from 'ol/format.js';
 import { fromLonLat } from 'ol/proj'
+import ScaleLine from 'ol/control/ScaleLine.js';
 
 import NhaForm from '@/components/forms/NhaForm.vue';
-// import CongTrinhYTeForm from '@/components/forms/CongTrinhYTeForm.vue';
-// import CongTrinhGiaoDucForm from '@/components/forms/CongTrinhGiaoDucForm.vue';
-// import CongTrinhTonGiaoForm from '@/components/forms/CongTrinhTonGiaoForm.vue';
-// import NhaVanHoaForm from '@/components/forms/NhaVanHoaForm.vue';
+import CongTrinhYTeForm from '@/components/forms/CongTrinhYTeForm.vue';
+import CongTrinhGiaoDucForm from '@/components/forms/CongTrinhGiaoDucForm.vue';
+import CongTrinhTonGiaoForm from '@/components/forms/CongTrinhTonGiaoForm.vue';
+import NhaVanHoaForm from '@/components/forms/NhaVanHoaForm.vue';
+import DuongDiaGioiForm from '@/components/forms/DuongDiaGioiForm.vue';
+import DiaPhanHanhChinhForm from '@/components/forms/DiaPhanHanhChinhForm.vue';
 
 import LayerTable from '@/components/tables/LayerTableView.vue';
 
-import { sendWFSInsert, fetchWFSFeatures, sendWFSDelete, sendWFSUpdate } from '@/api/api_WFST.js';
+import { sendWFSInsert, fetchWFSFeatures, sendWFSDelete, sendWFSUpdate , exportShp } from '@/api/api_WFST.js';
 
 const authStore = useAuthStore();
 const isAuthenticated = computed(() => authStore.isAuthenticated);
@@ -204,7 +212,14 @@ const tableFullscreen = ref(false)
 const activeLayer = ref(null)
 
 const formMap = {
-    NhaForm
+    NhaForm,
+    CongTrinhTonGiaoForm,
+    CongTrinhGiaoDucForm,
+    CongTrinhYTeForm,
+    NhaVanHoaForm,
+    DuongDiaGioiForm,
+    DiaPhanHanhChinhForm,
+
     // Thêm các ánh xạ khác nếu có
 }
 
@@ -216,7 +231,7 @@ const openNav = () => {
 const toggleLayer = (item) => {
     console.log(item.layerRef.getVisible());
     console.log(item.visible);
-    item.layerRef.setVisible(item.visible);
+    item.layerRef.setVisible(item.visible); // đồng bộ trạng thái hiển thị của lớp với checkbox
     console.log(item.layerRef.getVisible());
 };
 
@@ -279,6 +294,8 @@ const ranhGioi = new LayerGroup({
 })
 
 // Lấy lớp từ bản đồ theo nhóm
+
+
 const getLayerTree = (map) => {
     console.log(map.getLayers().getArray());
     return map.getLayers().getArray()
@@ -317,11 +334,11 @@ const editLayer = new VectorLayer({
 
 
 const getFeatureInfo = async (evt) => {
-    const view = map.value.getView()
-    const resolution = view.getResolution()
-    const projection = view.getProjection()
+    const view = map.value.getView() 
+    const resolution = view.getResolution() //độ phân giải hiện tại của bản đồ
+    const projection = view.getProjection() //hệ tọa độ của bản đồ
 
-    const layers = map.value.getLayers().getArray()
+    const layers = map.value.getLayers().getArray() // lấy tất cả các lớp trên bản đồ
 
     for (const group of layers) {
         if (!(group instanceof LayerGroup)) continue
@@ -370,7 +387,16 @@ const createMap = async () => {
             projection: 'EPSG:3857',
             center: fromLonLat([106.25853830720988, 20.489806531567343]),
             zoom: 14,
-        })
+        }),
+        controls: [
+            new ScaleLine({
+                units: 'metric',
+                bar: true,
+                steps: 4,
+                text: true,
+                minWidth: 140,
+            }),
+        ]
     });
     map.value.on('singleclick', async (evt) => {
         featureInfo.value = []
@@ -479,14 +505,29 @@ const loadEditFeatures = async (layerName) => {
     editSource.addFeatures(features)
 }
 
-const handleSelect = (feature) => {
+const handleSelect = async (feature) => {
     if (!feature) return
 
     selectedFeature.value = feature
     console.log('feature', feature)
 
-    const { geometry, geom, ...attrs } = feature.getProperties()
-    currentAttrs.value = attrs
+    if (!feature.getId()) {
+        console.warn('Feature chưa có ID')
+        return
+    }
+
+    const id = feature.getId().split('.')[1]
+    console.log('Feature ID:', id)
+
+    const layerName = currentEditLayer.value.layerName
+    console.log('Layer name:', layerName)
+
+    const data = await getLayerById(layerName, id)
+
+    console.log('Dữ liệu chi tiết của đối tượng:', data)
+    // const { geometry, geom, ...attrs } = feature.getProperties()
+    editMode.value = 'select'
+    currentAttrs.value = data.data
     showAttributeForm.value = true
     feature.setStyle(selectStyle)
     console.log('Đối tượng được chọn:', feature.getId());
@@ -501,14 +542,18 @@ const handleAddLayer = async (layer) => {
     console.log('layer được chọn:', layer);
 
     currentEditLayer.value = layer;
-    // editMap.clearInteractions()
+    //  editMap.clearInteractions()
     // await loadEditFeatures(layer.layerName)
     editMap.enableDraw(layer.geometryType, (feature) => {
         console.log('Đã vẽ đối tượng mới:', feature);
+        editMode.value = 'add'
         selectedFeature.value = feature;
         showAttributeForm.value = true;
         insertQueue.value.push(feature);
-    }, handleSelect);
+        console.log('Insert Queue:', insertQueue.value.length);
+    },
+        handleSelect
+    );
 };
 
 const currentFormComponent = computed(() => {
@@ -583,7 +628,9 @@ const handleCancel = () => {
     selectedFeature.value = null
     showAttributeForm.value = false
 
-    // editMap.clearInteractions()
+    loadEditFeatures(currentEditLayer.value.layerName)
+
+    editMap.clearInteractions()
 }
 
 watch(currentEditLayer, (val) => {
@@ -599,13 +646,22 @@ const geometryModify = (feature) => {
     console.log('Update Queue:', updateQueue.value.length);
     // feature.setStyle(selectStyle)
 }
-const handleModify = (feature) => {
+const handleModify = async(feature) => {
     if (!feature) return
 
     selectedFeature.value = feature;
+ const id = feature.getId().split('.')[1]
+    console.log('Feature ID:', id)
 
-    const { geometry, geom, ...attrs } = feature.getProperties()
-    currentAttrs.value = attrs
+    const layerName = currentEditLayer.value.layerName
+    console.log('Layer name:', layerName)
+
+    const data = await getLayerById(layerName, id)
+
+    console.log('Dữ liệu chi tiết của đối tượng:', data)
+    // const { geometry, geom, ...attrs } = feature.getProperties()
+    editMode.value = 'modify'
+    currentAttrs.value = data.data
     showAttributeForm.value = true
 
     feature.setStyle(selectStyle)
@@ -648,6 +704,16 @@ const openLayerTable = (layer) => {
     tableOpen.value = true
     tableFullscreen.value = false
     console.log('Mở bảng dữ liệu cho lớp:', layer);
+}
+
+const exportLayerData = async (layer) => {
+    try {
+        await exportShp(layer.layerName)
+        // message.success('Xuất dữ liệu thành công')
+    } catch (err) {
+        console.error(err)
+        message.error('Lỗi khi xuất dữ liệu')
+    }
 }
 
 
@@ -841,4 +907,6 @@ onMounted(() => {
     justify-content: space-between;
     width: 100%;
 }
+
+
 </style>

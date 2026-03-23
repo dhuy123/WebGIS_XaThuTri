@@ -4,10 +4,12 @@ const auth = require('../middleware/authMiddleware');
 const { checkRole } = require('../middleware/checkRole');
 const nhaVanHoaController = require('../controllers/nhaVanHoaController');
 
-router.get('/', auth,
+router.get('/', 
+    // auth,
     //checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']), 
     nhaVanHoaController.getNhaVanHoaPaginated);
-router.get('/:id', auth,
+router.get('/:id', 
+    // auth,
     // checkRole(['ADMIN', 'EMPLOYEE', 'VIEWER']),
     nhaVanHoaController.getNhaVanHoaById);
 router.post('/', auth,

@@ -82,14 +82,15 @@ watch(
     () => props.layers,
     layers => {
         checkedKeys.value = layers
-            .filter(l => l.visible)
-            .map(l => l.key)
+            .filter(l => l.visible) // lọc các lớp có thuộc tính visible là true
+            .map(l => l.key) // lấy key của các lớp đã được lọc
     },
     { immediate: true }
 )
 
 /* ===== bật / tắt ===== */
 const onCheck = keys => {
+    console.log('Checked keys:', keys);
     props.layers.forEach(layer => {
         emit('toggle-layer', layer.key, keys.includes(layer.key))
     })

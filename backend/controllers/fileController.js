@@ -2,6 +2,8 @@ const minioClient = require('../config/minio');
 const fileModel = require('../models/fileModel');
 
 const uploadFileController = async (req, res) => {
+    console.log("BODY:", req.body);
+    console.log("FILE:", req.file);
     try {
         if (!req.file) {
             return res.status(400).json({ message: 'Không có tệp tin để tải lên' });
